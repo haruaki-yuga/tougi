@@ -73,6 +73,33 @@
             font-size: 14px;
             /* フォントサイズを少し大きく */
         }
+
+        .checkbox-container {
+            display: inline-flex;
+            align-items: center;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        .checkbox-container label {
+            display: flex;
+            align-items: center;
+            padding: 5px 10px;
+            border-radius: 5px;
+            transition: background-color 0.2s, box-shadow 0.2s;
+            width: 10em;
+        }
+
+        .checkbox-container label:hover {
+            background-color: #f0f0f0;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .checkbox-container input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
+            margin-right: 8px;
+        }
     </style>
 </head>
 
@@ -148,6 +175,12 @@
     <button onclick="startBattle()">バトル開始</button>
     <!-- ログをクリアするボタン -->
     <button id="clearLogButton">ログをクリア</button>
+    <div class="checkbox-container">
+        <label for="result-check">
+            <input type="checkbox" id="result-check" name="result-check" checked>
+            勝敗判定を行う
+        </label>
+    </div>
 
     <h2>バトル結果</h2>
     <div id="result"></div>
@@ -405,10 +438,12 @@
             );
             log(`バトル開始！ ${player1.name} vs ${player2.name}`);
 
+            const suspensionJudgeFlag = document.getElementById('result-check').checked; // 勝敗判定を行うかどうか
+
             let turn = 1;
             while (player1.isAlive() && player2.isAlive()) {
 
-                if (turn >= 21) {
+                if (turn >= 21 && suspensionJudgeFlag) {
                     break;
                 }
 
