@@ -424,7 +424,7 @@
                         firstPlayer.attack(secondPlayer);
                     }
 
-                    if (secondPlayer.isAlive() && secondPlayer.actionPoints >= firstPlayer.actionPoints && secondPlayer.actionPoints > 40) {
+                    if (secondPlayer.isAlive() && secondPlayer.actionPoints >= firstPlayer.actionPoints && secondPlayer.actionPoints >= 40) {
                         secondPlayer.attack(firstPlayer);
                     }
 
