@@ -181,6 +181,7 @@
                 this.alive = true;
                 this.actionPoints = 0;
                 this.yojoPoints = 0;
+                this.dramaEnhanceCount = 0;
             }
 
             // ダメージを受けるメソッド
@@ -208,9 +209,14 @@
                     // 数字が上回った=以上と解釈。>の可能性もあり
                     if (dramaChance >= (100 - this.drama) && dramaChance > this.fumble) {
                         this.hp = 1;
-                        this.critical += 1;
-                        this.speed += 20;
-                        log(`${this.name}はドラマ補正でHP1で踏みとどまり、クリティカルと速度が増加しました！`);
+                        if (this.dramaEnhanceCount < 10) {
+                            this.critical += 1;
+                            this.speed += 20;
+                            this.dramaEnhanceCount += 1;
+                            log(`${this.name}はドラマ補正でHP1で踏みとどまり、クリティカルと速度が増加しました！`);
+                        } else {
+                            log(`${this.name}はドラマ補正でHP1で踏みとどまりました！`);
+                        }
                     } else {
                         this.hp = 0;
                         this.alive = false;
