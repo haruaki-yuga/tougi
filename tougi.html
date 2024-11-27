@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>バトルシミュレーション</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        form {
+            margin-bottom: 20px;
+        }
+
+        label {
+            font-size: 14px;
+            display: inline-block;
+            width: 120px;
+            /* ラベルの幅を統一 */
+        }
+
+        input {
+            margin-bottom: 10px;
+            font-size: 14px;
+            width: 150px;
+            /* 入力ボックスの幅を統一 */
+        }
+
+        #container {
+            display: flex;
+            justify-content: space-between;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .playerForm {
+            width: 45%;
+        }
+
+        .playerForm div {
+            margin-bottom: 10px;
+        }
+
+        #button {
+            padding: 10px 20px;
+            font-size: 16px;
+            margin: 20px auto;
+            display: block;
+        }
+
+        #result {
+            margin-top: 20px;
+        }
+
+        #battleLog {
+            font-family: 'Courier New', monospace;
+            white-space: pre-wrap;
+            background-color: #f0f0f0;
+            padding: 10px;
+            border: 1px solid #ccc;
+            height: 400px;
+            /* ログ画面の高さを増加 */
+            overflow-y: scroll;
+            width: 100%;
+            /* 幅を調整 */
+            font-size: 14px;
+            /* フォントサイズを少し大きく */
+        }
+    </style>
+</head>
+
+<body>
+    <h1>バトルシミュレーション</h1>
+
+    <div id="container">
+        <!-- プレイヤー1の入力フォーム -->
+        <div class="playerForm">
+            <h2>プレイヤー1</h2>
+            <form id="player1Form">
+                <div><label for="player1_name">名前: </label><input type="text" id="player1_name" value="プレイヤー1" required>
+                </div>
+                <div><label for="player1_hp">HP: </label><input type="number" id="player1_hp" value="100" required>
+                </div>
+                <div><label for="player1_ap">AP: </label><input type="number" id="player1_ap" value="10" required></div>
+                <div><label for="player1_attack">主攻撃: </label><input type="number" id="player1_attack" value="20"
+                        required></div>
+                <div><label for="player1_subAttack">副攻撃: </label><input type="number" id="player1_subAttack" value="5"
+                        required></div>
+                <div><label for="player1_speed">速度: </label><input type="number" id="player1_speed" value="10" required>
+                </div>
+                <div><label for="player1_critical">クリティカル: </label><input type="number" id="player1_critical" value="5"
+                        required></div>
+                <div><label for="player1_fumble">ファンブル: </label><input type="number" id="player1_fumble" value="15"
+                        required></div>
+                <div><label for="player1_drama">ドラマ: </label><input type="number" id="player1_drama" value="10"
+                        required></div>
+                <div><label for="player1_hit">命中: </label><input type="number" id="player1_hit" value="10" required>
+                </div>
+                <div><label for="player1_evasion">回避: </label><input type="number" id="player1_evasion" value="5"
+                        required></div>
+                <div><label for="player1_defense">防御: </label><input type="number" id="player1_defense" value="10"
+                        required></div>
+                <div><label for="player1_resistance">抵抗: </label><input type="number" id="player1_resistance" value="10"
+                        required></div>
+            </form>
+        </div>
+
+        <!-- プレイヤー2の入力フォーム -->
+        <div class="playerForm">
+            <h2>プレイヤー2</h2>
+            <form id="player2Form">
+                <div><label for="player2_name">名前: </label><input type="text" id="player2_name" value="プレイヤー2" required>
+                </div>
+                <div><label for="player2_hp">HP: </label><input type="number" id="player2_hp" value="100" required>
+                </div>
+                <div><label for="player2_ap">AP: </label><input type="number" id="player2_ap" value="10" required></div>
+                <div><label for="player2_attack">主攻撃: </label><input type="number" id="player2_attack" value="20"
+                        required></div>
+                <div><label for="player2_subAttack">副攻撃: </label><input type="number" id="player2_subAttack" value="5"
+                        required></div>
+                <div><label for="player2_speed">速度: </label><input type="number" id="player2_speed" value="10" required>
+                </div>
+                <div><label for="player2_critical">クリティカル: </label><input type="number" id="player2_critical" value="5"
+                        required></div>
+                <div><label for="player2_fumble">ファンブル: </label><input type="number" id="player2_fumble" value="15"
+                        required></div>
+                <div><label for="player2_drama">ドラマ: </label><input type="number" id="player2_drama" value="10"
+                        required></div>
+                <div><label for="player2_hit">命中: </label><input type="number" id="player2_hit" value="10" required>
+                </div>
+                <div><label for="player2_evasion">回避: </label><input type="number" id="player2_evasion" value="5"
+                        required></div>
+                <div><label for="player2_defense">防御: </label><input type="number" id="player2_defense" value="10"
+                        required></div>
+                <div><label for="player2_resistance">抵抗: </label><input type="number" id="player2_resistance" value="10"
+                        required></div>
+            </form>
+        </div>
+    </div>
+
+    <button onclick="startBattle()">バトル開始</button>
+    <!-- ログをクリアするボタン -->
+    <button id="clearLogButton">ログをクリア</button>
+
+    <h2>バトル結果</h2>
+    <div id="result"></div>
+
+    <h2>バトルログ</h2>
+    <div id="battleLog"></div>
+    <script>
+        // ログをクリアする関数
+        function clearBattleLog() {
+            const logArea = document.getElementById('battleLog');
+            logArea.innerHTML = ''; // ログ内容を空にする
+        }
+
+        // ログをクリアするボタンのイベントリスナーを追加
+        document.getElementById('clearLogButton').addEventListener('click', clearBattleLog);
+
+        class Character {
+            constructor(name, hp, mainAttack, subAttack, speed, critical, fumble, drama, hit, evasion, defense, resistance) {
+                this.name = name;
+                this.hp = hp;
+                this.mainAttack = mainAttack;
+                this.subAttack = subAttack;
+                this.speed = speed;
+                this.critical = critical;
+                this.fumble = fumble;
+                this.drama = drama;
+                this.hit = hit;
+                this.evasion = evasion;
+                this.defense = defense;
+                this.resistance = resistance;
+                this.alive = true;
+                this.actionPoints = 0;
+                this.yojoPoints = 0;
+            }
+
+            // ダメージを受けるメソッド
+            takeDamage(damage, trueDamage, defenceFumble) {
+                if (!defenceFumble) {
+                    let defenseChance = Math.random() * 100;
+                    if (defenseChance >= (100 - this.defense) && defenseChance > this.fumble) {
+                        damage *= 0.3;
+                        log(`${this.name}は防御技術でダメージを軽減しました！`);
+                    }
+                }
+
+                let resistanceChance = Math.random() * 100;
+                if (resistanceChance >= (100 - this.resistance) && resistanceChance > this.fumble) {
+                    log(`${this.name}は状態異常に対する抵抗が発動しました！`);
+                }
+
+                damage = Math.round(damage + trueDamage);
+
+                this.hp -= damage;
+                log(`${this.name}は${damage}ダメージを受けました！\n`);
+
+                if (this.hp <= 0) {
+                    let dramaChance = Math.random() * 100;
+                    // 数字が上回った=以上と解釈。>の可能性もあり
+                    if (dramaChance >= (100 - this.drama) && dramaChance > this.fumble) {
+                        this.hp = 1;
+                        this.critical += 1;
+                        this.speed += 20;
+                        log(`${this.name}はドラマ補正でHP1で踏みとどまり、クリティカルと速度が増加しました！`);
+                    } else {
+                        this.hp = 0;
+                        this.alive = false;
+                        log(`${this.name}は倒れました！`);
+                    }
+                }
+            }
+
+            // 行動可能かをチェック
+            isAlive() {
+                return this.alive;
+            }
+
+            // 行動力を決める
+            rollInitiative() {
+                let roll1 = Math.floor(Math.random() * 100) + 1;
+                let roll2 = Math.floor(Math.random() * 100) + 1;
+                this.actionPoints = this.speed + roll1 + roll2 + this.yojoPoints;
+                log(`${this.name}のHP:${this.hp} 行動力:${this.actionPoints}(速度:${this.speed}+ダイス1:${roll1}+ダイス2:${roll2}+繰り越し分:${this.yojoPoints})`);
+            }
+
+            attack(target) {
+                let attackCritical = false
+                let attackFumble = false
+                let defenceCritical = false
+                let defenceFumble = false
+
+                // ① 命中判定
+                let roll = Math.floor(Math.random() * 100) + 1; // 100面ダイスを振る
+                let hitChance = this.hit + roll; // 命中判定数値
+
+                // ② 回避判定
+                let evasionRoll = Math.floor(Math.random() * 100) + 1; // 回避判定用ダイスを振る
+                let finalEvasion = evasionRoll + target.evasion; // 最終的な回避数値
+
+                if (roll >= 100 - this.critical) {
+                    attackCritical = true
+                }
+                if (roll <= this.fumble) {
+                    attackFumble = true
+                }
+                if (roll >= 100 - target.critical) {
+                    defenceCritical = true
+                }
+                if (roll <= target.fumble) {
+                    defenceFumble = true
+                }
+
+                // ③ ログ出力: 命中ダイスと命中値、回避判定ダイスと回避値を表示
+                log(`${this.name}が攻撃！ 命中判定: ${hitChance} (命中ダイス: ${roll}, 命中: ${this.hit})`);
+                log(`${target.name}の回避判定: ${finalEvasion} (回避ダイス: ${evasionRoll}, 回避: ${target.evasion})`);
+
+                // ④ 命中判定と回避判定を比較
+                if (defenceCritical) {
+                    // クリティカルでの完全回避の場合
+                    log(`${target.name}はクリティカルで完全回避しました！`);
+                } else if (attackFumble) {
+                    // 自動失敗の場合
+                    log(`${this.name}の攻撃は自動失敗しました。`);
+                } else if (hitChance > finalEvasion) {
+                    log(`${target.name}は回避に失敗し、攻撃が命中しました！`);
+
+                    // ⑤ 再度ダイスを振ってヒット判定を行う
+                    let secondRoll = Math.floor(Math.random() * 100) + 1; // 2回目の命中ダイスを振る
+                    hitChance += secondRoll; // 命中判定に加算
+
+                    // ⑥ 最終的な命中度を判定するためのダイス
+
+                    let finalHitDegree = hitChance - finalEvasion; // 加算された最終命中度
+
+                    // ログ出力: 最終命中度のダイス結果と最終的な命中度
+                    log(`${this.name}の命中度判定ダイス: ${secondRoll}`);
+                    log(`${this.name}の最終命中度数値: ${finalHitDegree} (命中判定: ${hitChance}, 命中度ダイス: ${secondRoll})`);
+
+                    // ⑦ ヒットの種類を判定
+                    let damage = 0;
+                    let trueDamage = 0;
+                    if (finalHitDegree <= 49 && !attackCritical) {
+                        damage = this.mainAttack * (15 + secondRoll / 4) / 100 + this.subAttack;
+                        target.resistance += 50;
+                        log(`${this.name}はグレイズヒットで攻撃！`);
+                    } else if (finalHitDegree <= 99 || (finalHitDegree <= 49 && attackCritical)) {
+                        // 命中判定のクリティカル時はライトヒットを保証
+                        damage = this.mainAttack * (30 + secondRoll / 2) / 100 + this.subAttack;
+                        target.resistance += 30;
+                        log(`${this.name}はライトヒットで攻撃！`);
+                    } else if (finalHitDegree <= 149) {
+                        if (attackCritical) {
+                            damage = this.mainAttack;
+                            trueDamage = this.subAttack * 3;
+                        } else {
+                            damage = this.mainAttack + this.subAttack;
+                        }
+                        target.resistance += 0;
+                        target.drama -= 10;
+                        log(`${this.name}はクリーンヒットで攻撃！`);
+                    } else if (finalHitDegree <= 199) {
+                        if (attackCritical) {
+                            damage = this.mainAttack * (1 + secondRoll / 200);
+                            trueDamage = this.subAttack * (1 + secondRoll / 200) * 3;
+                        } else {
+                            damage = this.mainAttack * (1 + secondRoll / 200);
+                            trueDamage = this.subAttack * (1 + secondRoll / 200);
+                        }
+                        target.resistance -= 25;
+                        target.drama -= 20;
+                        log(`${this.name}はハードヒットで攻撃！`);
+                    } else {
+                        if (attackCritical) {
+                            damage = this.mainAttack * (1 + secondRoll / 100);
+                            trueDamage = this.subAttack * (1 + secondRoll / 100) * 3;
+                        } else {
+                            damage = this.mainAttack * (1 + secondRoll / 100);
+                            trueDamage = this.subAttack * (1 + secondRoll / 100);
+                        }
+                        target.resistance -= 50;
+                        target.drama -= 30;
+                        log(`${this.name}はスマッシュヒットで攻撃！`);
+                    }
+
+                    // ダメージをターゲットに与える
+                    target.takeDamage(damage, trueDamage, defenceFumble);
+
+                } else if (hitChance <= finalEvasion) {
+                    // 完全回避の場合
+                    log(`${target.name}は完全回避しました！`);
+                }
+
+                // 行動力の消費
+                this.actionPoints -= 40; // 攻撃に必要な行動力を消費
+                this.actionPoints = Math.floor(this.actionPoints / 2); // 行動力半減
+                this.yojoPoints = this.actionPoints;
+                if (target.isAlive()) {
+                    log(`${this.name}の残り行動力: ${this.actionPoints}\n`);
+                }
+            }
+        }
+
+        let player1, player2;
+
+        function log(message) {
+            const battleLog = document.getElementById('battleLog');
+            battleLog.textContent += message + '\n';
+            battleLog.scrollTop = battleLog.scrollHeight;
+        }
+
+        function startBattle() {
+            player1 = new Character(
+                document.getElementById('player1_name').value,
+                parseInt(document.getElementById('player1_hp').value),
+                parseInt(document.getElementById('player1_attack').value),
+                parseInt(document.getElementById('player1_subAttack').value),
+                parseInt(document.getElementById('player1_speed').value),
+                parseInt(document.getElementById('player1_critical').value),
+                parseInt(document.getElementById('player1_fumble').value),
+                parseInt(document.getElementById('player1_drama').value),
+                parseInt(document.getElementById('player1_hit').value),
+                parseInt(document.getElementById('player1_evasion').value),
+                parseInt(document.getElementById('player1_defense').value),
+                parseInt(document.getElementById('player1_resistance').value)
+            );
+
+            player2 = new Character(
+                document.getElementById('player2_name').value,
+                parseInt(document.getElementById('player2_hp').value),
+                parseInt(document.getElementById('player2_attack').value),
+                parseInt(document.getElementById('player2_subAttack').value),
+                parseInt(document.getElementById('player2_speed').value),
+                parseInt(document.getElementById('player2_critical').value),
+                parseInt(document.getElementById('player2_fumble').value),
+                parseInt(document.getElementById('player2_drama').value),
+                parseInt(document.getElementById('player2_hit').value),
+                parseInt(document.getElementById('player2_evasion').value),
+                parseInt(document.getElementById('player2_defense').value),
+                parseInt(document.getElementById('player2_resistance').value)
+            );
+            log(`バトル開始！ ${player1.name} vs ${player2.name}`);
+
+            let turn = 1;
+            while (player1.isAlive() && player2.isAlive()) {
+                log(`\nターン ${turn}:`);
+
+                player1.rollInitiative();
+                player2.rollInitiative();
+
+                let firstPlayer, secondPlayer;
+                if (player1.actionPoints > player2.actionPoints) {
+                    firstPlayer = player1;
+                    secondPlayer = player2;
+                } else if (player2.actionPoints > player1.actionPoints) {
+                    firstPlayer = player2;
+                    secondPlayer = player1;
+                } else {
+                    if (Math.random() < 0.5) {
+                        firstPlayer = player1;
+                        secondPlayer = player2;
+                    } else {
+                        firstPlayer = player2;
+                        secondPlayer = player1;
+                    }
+                }
+
+                while (firstPlayer.isAlive() && secondPlayer.isAlive() && (firstPlayer.actionPoints >= 40 || secondPlayer.actionPoints >= 40)) {
+                    if (firstPlayer.actionPoints >= secondPlayer.actionPoints) {
+                        firstPlayer.attack(secondPlayer);
+                    }
+
+                    if (secondPlayer.isAlive() && secondPlayer.actionPoints >= firstPlayer.actionPoints && secondPlayer.actionPoints > 40) {
+                        secondPlayer.attack(firstPlayer);
+                    }
+
+                    if (!firstPlayer.isAlive() || !secondPlayer.isAlive()) {
+                        break;
+                    }
+                }
+
+                turn++;
+            }
+            let result = document.getElementById('result');
+            if (!player1.isAlive() && !player2.isAlive()) {
+                result.innerHTML = `引き分けです。`;
+            } else if (!player1.isAlive()) {
+                result.innerHTML = `${player2.name}の勝利！`;
+            } else {
+                result.innerHTML = `${player1.name}の勝利！`;
+            }
+        }
+    </script>
+</body>
+
+</html>
