@@ -100,6 +100,37 @@
             height: 16px;
             margin-right: 8px;
         }
+
+        .range-label {
+            font-size: 14px;
+            display: inline-block;
+            width: 8em;
+        }
+
+        .range-container label {
+            display: flex;
+            align-items: center;
+            padding: 5px 5px 0px 5px;
+            width: 1em;
+        }
+
+        .range-container input {
+            width: 1em;
+        }
+
+        .range-container {
+            display: flex;
+            justify-content: left;
+            align-items: center;
+            gap: 10px;
+            height: 3em;
+        }
+
+        .range-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
     </style>
 </head>
 
@@ -136,6 +167,29 @@
                         required></div>
                 <div><label for="player1_resistance">抵抗: </label><input type="number" id="player1_resistance" value="10"
                         required></div>
+                <div><span class="range-label">通常攻撃射程：</span></div>
+                <div class="range-container">
+                    <div class="range-item">
+                        <label for="close">至</label>
+                        <input type="checkbox" id="player1_attack_range_check_0" name="attackRange">
+                    </div>
+                    <div class="range-item">
+                        <label for="near">近</label>
+                        <input type="checkbox" id="player1_attack_range_check_1" name="attackRange">
+                    </div>
+                    <div class="range-item">
+                        <label for="middle">中</label>
+                        <input type="checkbox" id="player1_attack_range_check_2" name="attackRange">
+                    </div>
+                    <div class="range-item">
+                        <label for="far">遠</label>
+                        <input type="checkbox" id="player1_attack_range_check_3" name="attackRange">
+                    </div>
+                    <div class="range-item">
+                        <label for="ultra">超</label>
+                        <input type="checkbox" id="player1_attack_range_check_4" name="attackRange" value="middle">
+                    </div>
+                </div>
             </form>
         </div>
 
@@ -168,9 +222,36 @@
                         required></div>
                 <div><label for="player2_resistance">抵抗: </label><input type="number" id="player2_resistance" value="10"
                         required></div>
+                <div><span class="range-label">通常攻撃射程：</span></div>
+                <div class="range-container">
+                    <div class="range-item">
+                        <label for="close">至</label>
+                        <input type="checkbox" id="player2_attack_range_check_0" name="attackRange">
+                    </div>
+                    <div class="range-item">
+                        <label for="near">近</label>
+                        <input type="checkbox" id="player2_attack_range_check_1" name="attackRange">
+                    </div>
+                    <div class="range-item">
+                        <label for="middle">中</label>
+                        <input type="checkbox" id="player2_attack_range_check_2" name="attackRange">
+                    </div>
+                    <div class="range-item">
+                        <label for="far">遠</label>
+                        <input type="checkbox" id="player2_attack_range_check_3" name="attackRange">
+                    </div>
+                    <div class="range-item">
+                        <label for="ultra">超</label>
+                        <input type="checkbox" id="player2_attack_range_check_4" name="attackRange">
+                    </div>
+                </div>
             </form>
         </div>
     </div>
+
+    <div id="initial_range_meter_container"><label for="initial_range_meter">開始時距離(m): </label><input type="number"
+            id="initial_range_meter" min="0" value="0" required>
+        </select></div>
 
     <button onclick="startBattle()">バトル開始</button>
     <!-- ログをクリアするボタン -->
@@ -196,6 +277,8 @@
 
         // ログをクリアするボタンのイベントリスナーを追加
         document.getElementById('clearLogButton').addEventListener('click', clearBattleLog);
+
+        let rangeMeter;
 
         class Character {
             constructor(name, hp, mainAttack, subAttack, speed, critical, fumble, drama, hit, evasion, defense, resistance) {
@@ -436,6 +519,9 @@
                 parseInt(document.getElementById('player2_defense').value),
                 parseInt(document.getElementById('player2_resistance').value)
             );
+
+            range = Number(document.getElementById('initial_range_meter').value);
+
             log(`バトル開始！ ${player1.name} vs ${player2.name}`);
 
             const suspensionJudgeFlag = document.getElementById('result-check').checked; // 勝敗判定を行うかどうか
