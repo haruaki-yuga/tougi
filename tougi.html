@@ -449,9 +449,16 @@
 
                 log(`\nターン ${turn}:`);
 
+                // BS判定フェーズ
+                // ダメージバッドステータスのダメージ処理
+                // →バッドステータスの自然回復判定
+                //【呪い】を受けていない状態で3回の自然回復判定を行うと、そのバッドステータスは消滅する
+
+                // 速度決定フェーズ
                 player1.rollInitiative();
                 player2.rollInitiative();
 
+                // 行動フェーズ
                 let firstPlayer, secondPlayer;
                 if (player1.actionPoints > player2.actionPoints) {
                     firstPlayer = player1;
