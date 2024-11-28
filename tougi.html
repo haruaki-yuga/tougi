@@ -197,6 +197,14 @@
         // ログをクリアするボタンのイベントリスナーを追加
         document.getElementById('clearLogButton').addEventListener('click', clearBattleLog);
 
+        const HIT_DEGREE = {
+            GRAZE_HIT: 1,
+            LIGHT_HIT: 2,
+            CLEAN_HIT: 3,
+            HARD_HIT: 4,
+            SMASH_HIT: 5,
+        };
+
         class Character {
             constructor(name, hp, mainAttack, subAttack, speed, critical, fumble, drama, hit, evasion, defense, resistance) {
                 this.name = name;
@@ -222,7 +230,10 @@
             }
 
             // ダメージを受けるメソッド
-            takeDamage(damage, trueDamage, defenceFumble) {
+            takeDamage(damage, trueDamage, judgeHitDegree, defenceFumble) {
+
+                this.takeDamagePreProcess(judgeHitDegree);
+
                 if (!defenceFumble) {
                     let defenseChance = Math.random() * 100;
                     if (defenseChance >= (100 - this.defense) && defenseChance > this.fumble) {
@@ -261,8 +272,72 @@
                     }
                 }
 
+                this.takeDamagePostProcess(judgeHitDegree);
+
                 // 与えたダメージ量を返却
                 return damage
+            }
+
+            takeDamagePreProcess(judgeHitDegree) {
+                switch (judgeHitDegree) {
+                    case HIT_DEGREE.GRAZE_HIT: {
+                        this.resistance += 50;
+                        break;
+                    }
+                    case HIT_DEGREE.LIGHT_HIT: {
+                        this.resistance += 30;
+                        break;
+                    }
+                    case HIT_DEGREE.CLEAN_HIT: {
+                        this.resistance += 0;
+                        this.drama -= 10;
+                        break;
+                    }
+                    case HIT_DEGREE.HARD_HIT: {
+                        this.resistance -= 25;
+                        this.drama -= 20;
+                        break;
+                    }
+                    case HIT_DEGREE.SMASH_HIT: {
+                        this.resistance -= 50;
+                        this.drama -= 30;
+                        break;
+                    }
+                    default: {
+                        throw new Error(`judgeHitDegree:${judgeHitDegree}`);
+                    }
+                }
+            }
+
+            takeDamagePostProcess(judgeHitDegree) {
+                switch (judgeHitDegree) {
+                    case HIT_DEGREE.GRAZE_HIT: {
+                        this.resistance -= 50;
+                        break;
+                    }
+                    case HIT_DEGREE.LIGHT_HIT: {
+                        this.resistance -= 30;
+                        break;
+                    }
+                    case HIT_DEGREE.CLEAN_HIT: {
+                        this.resistance += 0;
+                        this.drama += 10;
+                        break;
+                    }
+                    case HIT_DEGREE.HARD_HIT: {
+                        this.resistance += 25;
+                        this.drama += 20;
+                        break;
+                    }
+                    case HIT_DEGREE.SMASH_HIT: {
+                        this.resistance += 50;
+                        this.drama += 30;
+                        break;
+                    }
+                    default: {
+                        throw new Error(`judgeHitDegree:${judgeHitDegree}`);
+                    }
+                }
             }
 
             // 行動可能かをチェック
@@ -326,6 +401,7 @@
                     // ⑥ 最終的な命中度を判定するためのダイス
 
                     let finalHitDegree = hitChance - finalEvasion; // 加算された最終命中度
+                    let judgeHitDegree = null;
 
                     // ログ出力: 最終命中度のダイス結果と最終的な命中度
                     log(`${this.name}の命中度判定ダイス: ${secondRoll}`);
@@ -336,12 +412,12 @@
                     let trueDamage = 0;
                     if (finalHitDegree <= 49 && !attackCritical) {
                         damage = this.mainAttack * (15 + secondRoll / 4) / 100 + this.subAttack;
-                        target.resistance += 50;
+                        judgeHitDegree = HIT_DEGREE.GRAZE_HIT;
                         log(`${this.name}はグレイズヒットで攻撃！`);
                     } else if (finalHitDegree <= 99 || (finalHitDegree <= 49 && attackCritical)) {
                         // 命中判定のクリティカル時はライトヒットを保証
                         damage = this.mainAttack * (30 + secondRoll / 2) / 100 + this.subAttack;
-                        target.resistance += 30;
+                        judgeHitDegree = HIT_DEGREE.LIGHT_HIT;
                         log(`${this.name}はライトヒットで攻撃！`);
                     } else if (finalHitDegree <= 149) {
                         if (attackCritical) {
@@ -350,8 +426,7 @@
                         } else {
                             damage = this.mainAttack + this.subAttack;
                         }
-                        target.resistance += 0;
-                        target.drama -= 10;
+                        judgeHitDegree = HIT_DEGREE.CLEAN_HIT;
                         log(`${this.name}はクリーンヒットで攻撃！`);
                         this.cleanHitOverCountForJudge++;
                     } else if (finalHitDegree <= 199) {
@@ -362,8 +437,7 @@
                             damage = this.mainAttack * (1 + secondRoll / 200);
                             trueDamage = this.subAttack * (1 + secondRoll / 200);
                         }
-                        target.resistance -= 25;
-                        target.drama -= 20;
+                        judgeHitDegree = HIT_DEGREE.HARD_HIT;
                         log(`${this.name}はハードヒットで攻撃！`);
                         this.cleanHitOverCountForJudge++;
                     } else {
@@ -374,14 +448,13 @@
                             damage = this.mainAttack * (1 + secondRoll / 100);
                             trueDamage = this.subAttack * (1 + secondRoll / 100);
                         }
-                        target.resistance -= 50;
-                        target.drama -= 30;
+                        judgeHitDegree = HIT_DEGREE.SMASH_HIT;
                         log(`${this.name}はスマッシュヒットで攻撃！`);
                         this.cleanHitOverCountForJudge++;
                     }
 
                     // ダメージをターゲットに与える
-                    this.damageScoreForJudge += target.takeDamage(damage, trueDamage, defenceFumble);
+                    this.damageScoreForJudge += target.takeDamage(damage, trueDamage, judgeHitDegree, defenceFumble);
 
                 } else if (hitChance <= finalEvasion) {
                     // 完全回避の場合
@@ -488,9 +561,9 @@
             let result = document.getElementById('result');
             if (player1.isAlive() && player2.isAlive()) {
                 // 次の項目を1ポイントとし、20ターン経過時にポイントが高い方が勝者。それでも決着が付かない場合は引き分け。
-                
+
                 log(`20ターン終了時に両者生存のため勝敗判定に移行！`);
-                
+
                 // １．与ダメージの総数が多い方
                 log(`与ダメージ総計`);
                 log(`${player1.name}の与ダメージ総計は${player1.damageScoreForJudge}`);
@@ -504,7 +577,7 @@
                 } else {
                     log(`互角！`);
                 }
-                
+
                 // ２．クリーンヒット以上の回数が多い方
                 log(`クリーンヒット以上の攻撃回数`);
                 log(`${player1.name}のクリーンヒット以上の攻撃回数は${player1.cleanHitOverCountForJudge}`);
@@ -518,7 +591,7 @@
                 } else {
                     log(`互角！`);
                 }
-                
+
                 // ３．残HPの割合が多い方
                 const player1HpPercentage = Math.round(player1.hp / player1.initialHp * 100);
                 const player2HpPercentage = Math.round(player2.hp / player2.initialHp * 100);
@@ -534,8 +607,8 @@
                 } else {
                     log(`互角！`);
                 }
-                
-                
+
+
                 log(`${player1.name}の合計ポイントは${player1.judgePoints}！`);
                 log(`${player2.name}の合計ポイントは${player2.judgePoints}！`);
                 log(`よって……`);
