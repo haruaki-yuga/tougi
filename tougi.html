@@ -495,7 +495,7 @@
                 log(`与ダメージ総計`);
                 log(`${player1.name}の与ダメージ総計は${player1.damageScoreForJudge}`);
                 log(`${player2.name}の与ダメージ総計は${player2.damageScoreForJudge}`);
-                if(player1.damageScoreForJudge > player2.damageScoreForJudge) {
+                if (player1.damageScoreForJudge > player2.damageScoreForJudge) {
                     log(`${player1.name}に1点！`);
                     player1.judgePoints++;
                 } else if (player1.damageScoreForJudge < player2.damageScoreForJudge) {
@@ -509,7 +509,7 @@
                 log(`クリーンヒット以上の攻撃回数`);
                 log(`${player1.name}のクリーンヒット以上の攻撃回数は${player1.cleanHitOverCountForJudge}`);
                 log(`${player2.name}のクリーンヒット以上の攻撃回数は${player2.cleanHitOverCountForJudge}`);
-                if(player1.cleanHitOverCountForJudge > player2.cleanHitOverCountForJudge) {
+                if (player1.cleanHitOverCountForJudge > player2.cleanHitOverCountForJudge) {
                     log(`${player1.name}に1点！`);
                     player1.judgePoints++;
                 } else if (player1.cleanHitOverCountForJudge < player2.cleanHitOverCountForJudge) {
@@ -520,15 +520,15 @@
                 }
                 
                 // ３．残HPの割合が多い方
-                const player1HpPercentage = Math.round(player1.hp/player1.initialHp*100);
-                const player2HpPercentage = Math.round(player2.hp/player2.initialHp*100);
+                const player1HpPercentage = Math.round(player1.hp / player1.initialHp * 100);
+                const player2HpPercentage = Math.round(player2.hp / player2.initialHp * 100);
                 log(`残HP割合`);
                 log(`${player1.name}のHPは${player1.hp}/${player1.initialHp}(${player1HpPercentage}%)`);
                 log(`${player2.name}のHPは${player2.hp}/${player2.initialHp}(${player2HpPercentage}%)`);
-                if(Math.round(player1.hp/player1.initialHp*100) > Math.round(player2.hp/player2.initialHp*100)) {
+                if (Math.round(player1.hp / player1.initialHp * 100) > Math.round(player2.hp / player2.initialHp * 100)) {
                     log(`${player1.name}に1点！`);
                     player1.judgePoints++;
-                } else if (Math.round(player1.hp/player1.initialHp*100) < Math.round(player2.hp/player2.initialHp*100)) {
+                } else if (Math.round(player1.hp / player1.initialHp * 100) < Math.round(player2.hp / player2.initialHp * 100)) {
                     log(`${player2.name}に1点！`);
                     player2.judgePoints++;
                 } else {
@@ -540,7 +540,7 @@
                 log(`${player2.name}の合計ポイントは${player2.judgePoints}！`);
                 log(`よって……`);
                 // 結果の判定
-                if(player1.judgePoints > player2.judgePoints) {
+                if (player1.judgePoints > player2.judgePoints) {
                     result.innerHTML = `${player1.name}の勝利！`;
                     return;
                 } else if (player1.judgePoints < player2.judgePoints) {
