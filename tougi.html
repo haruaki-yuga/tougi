@@ -136,6 +136,8 @@
                         required></div>
                 <div><label for="player1_resistance">抵抗: </label><input type="number" id="player1_resistance" value="10"
                         required></div>
+                <div><label for="player1_mobility">機動力: </label><input type="number" id="player1_mobility" value="4"
+                        required></div>
             </form>
         </div>
 
@@ -168,6 +170,8 @@
                         required></div>
                 <div><label for="player2_resistance">抵抗: </label><input type="number" id="player2_resistance" value="10"
                         required></div>
+                <div><label for="player2_mobility">機動力: </label><input type="number" id="player2_mobility" value="4"
+                        required></div>
             </form>
         </div>
     </div>
@@ -198,7 +202,7 @@
         document.getElementById('clearLogButton').addEventListener('click', clearBattleLog);
 
         class Character {
-            constructor(name, hp, mainAttack, subAttack, speed, critical, fumble, drama, hit, evasion, defense, resistance) {
+            constructor(name, hp, mainAttack, subAttack, speed, critical, fumble, drama, hit, evasion, defense, resistance, mobility) {
                 this.name = name;
                 this.initialHp = hp;
                 this.hp = hp;
@@ -212,6 +216,7 @@
                 this.evasion = evasion;
                 this.defense = defense;
                 this.resistance = resistance;
+                this.mobility = mobility;
                 this.alive = true;
                 this.actionPoints = 0;
                 this.yojoPoints = 0;
@@ -419,7 +424,8 @@
                 parseInt(document.getElementById('player1_hit').value),
                 parseInt(document.getElementById('player1_evasion').value),
                 parseInt(document.getElementById('player1_defense').value),
-                parseInt(document.getElementById('player1_resistance').value)
+                parseInt(document.getElementById('player1_resistance').value),
+                parseInt(document.getElementById('player1_mobility').value)
             );
 
             player2 = new Character(
@@ -434,7 +440,8 @@
                 parseInt(document.getElementById('player2_hit').value),
                 parseInt(document.getElementById('player2_evasion').value),
                 parseInt(document.getElementById('player2_defense').value),
-                parseInt(document.getElementById('player2_resistance').value)
+                parseInt(document.getElementById('player2_resistance').value),
+                parseInt(document.getElementById('player2_mobility').value)
             );
             log(`バトル開始！ ${player1.name} vs ${player2.name}`);
 
