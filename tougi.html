@@ -218,12 +218,14 @@
                 this.resistance = resistance;
                 this.mobility = mobility;
                 this.alive = true;
+                this.passed = false;
                 this.actionPoints = 0;
                 this.yojoPoints = 0;
                 this.dramaEnhanceCount = 0;
                 this.cleanHitOverCountForJudge = 0;
                 this.damageScoreForJudge = 0;
                 this.judgePoints = 0;
+                this.nextAction = null;
             }
 
             // ダメージを受けるメソッド
@@ -283,7 +285,11 @@
                 log(`${this.name}のHP:${this.hp} 行動力:${this.actionPoints}(速度:${this.speed}+ダイス1:${roll1}+ダイス2:${roll2}+繰り越し分:${this.yojoPoints})`);
             }
 
-            attack(target) {
+            move() {
+                this.actionPoints -= 20;
+            }
+
+            attack(target, consumeActionPoints) {
                 let attackCritical = false
                 let attackFumble = false
                 let defenceCritical = false
@@ -392,14 +398,46 @@
                     // 完全回避の場合
                     log(`${target.name}は完全回避しました！`);
                 }
+                this.actionPoints -= consumeActionPoints; // 攻撃に必要な行動力を消費
+            }
 
-                // 行動力の消費
-                this.actionPoints -= 40; // 攻撃に必要な行動力を消費
+            halveProcess() {
                 this.actionPoints = Math.floor(this.actionPoints / 2); // 行動力半減
-                this.yojoPoints = this.actionPoints;
-                if (target.isAlive()) {
-                    log(`${this.name}の残り行動力: ${this.actionPoints}\n`);
+                log(`${this.name}の残り行動力: ${this.actionPoints}\n`);
+            }
+
+            decideAction(targetPlayer) {
+
+                const needMoveToAttack = this.needMoveToAttack();
+                if (this.actionPoints >= 60) {
+                    if (needMoveToAttack) {
+                        this.nextAction = '移動通常攻撃';
+                    } else {
+                        this.nextAction = '通常攻撃';
+                    }
                 }
+                if (this.actionPoints < 60) {
+                    if (needMoveToAttack) {
+                        // 現時点でこの行動値で取る行動を実装していないため持ち越す
+                        // 相手が攻撃可能で射程内であれば移動で距離を離す処理を検討する余地あり
+                        this.nextAction = '速度を持ち越す';
+                    } else {
+                        this.nextAction = '通常攻撃';
+                    }
+                }
+                if (this.actionPoints < 40) {
+                    // 現時点でこの行動値で取る行動を実装していないため持ち越す
+                    // 相手が攻撃可能で射程内であれば移動で距離を離す処理を検討する余地あり
+                    this.nextAction = '速度を持ち越す';
+                }
+                if (this.actionPoints < 20) {
+                    this.nextAction = '速度を持ち越す';
+                }
+            }
+
+            needMoveToAttack() {
+                // 移動しなければそもそも攻撃が不可能な状況でtrueを返却する
+                return false;
             }
         }
 
@@ -448,13 +486,15 @@
             const suspensionJudgeFlag = document.getElementById('result-check').checked; // 勝敗判定を行うかどうか
 
             let turn = 1;
-            while (player1.isAlive() && player2.isAlive()) {
+            turnLoop: while (player1.isAlive() && player2.isAlive()) {
 
                 if (turn >= 21 && suspensionJudgeFlag) {
                     break;
                 }
 
                 log(`\nターン ${turn}:`);
+                player1.passed = false;
+                player2.passed = false;
 
                 // BS判定フェーズ
                 // ダメージバッドステータスのダメージ処理
@@ -466,34 +506,66 @@
                 player2.rollInitiative();
 
                 // 行動フェーズ
-                let firstPlayer, secondPlayer;
-                if (player1.actionPoints > player2.actionPoints) {
-                    firstPlayer = player1;
-                    secondPlayer = player2;
-                } else if (player2.actionPoints > player1.actionPoints) {
-                    firstPlayer = player2;
-                    secondPlayer = player1;
-                } else {
-                    if (Math.random() < 0.5) {
-                        firstPlayer = player1;
-                        secondPlayer = player2;
+                let actPlayer, targetPlayer;
+
+                while (!player1.passed && !player2.passed) {
+
+                    // 行動者決定
+                    if (player1.actionPoints > player2.actionPoints) {
+                        actPlayer = player1;
+                        targetPlayer = player2;
+                    } else if (player2.actionPoints > player1.actionPoints) {
+                        actPlayer = player2;
+                        targetPlayer = player1;
                     } else {
-                        firstPlayer = player2;
-                        secondPlayer = player1;
-                    }
-                }
-
-                while (firstPlayer.isAlive() && secondPlayer.isAlive() && (firstPlayer.actionPoints >= 40 || secondPlayer.actionPoints >= 40)) {
-                    if (firstPlayer.actionPoints >= secondPlayer.actionPoints) {
-                        firstPlayer.attack(secondPlayer);
-                    }
-
-                    if (secondPlayer.isAlive() && secondPlayer.actionPoints >= firstPlayer.actionPoints && secondPlayer.actionPoints >= 40) {
-                        secondPlayer.attack(firstPlayer);
+                        if (Math.random() < 0.5) {
+                            actPlayer = player1;
+                            targetPlayer = player2;
+                        } else {
+                            actPlayer = player2;
+                            targetPlayer = player1;
+                        }
                     }
 
-                    if (!firstPlayer.isAlive() || !secondPlayer.isAlive()) {
-                        break;
+                    actPlayer.decideAction(targetPlayer);
+
+                    switch (actPlayer.nextAction) {
+                        case '移動通常攻撃': {
+                            // 移動が必要な状況で移動
+                            actPlayer.move();
+                            actPlayer.attack(targetPlayer, 40);
+                            if (!actPlayer.isAlive() || !targetPlayer.isAlive()) {
+                                break turnLoop;
+                            }
+                            actPlayer.halveProcess();
+                            break;
+                        }
+                        case '通常攻撃': {
+                            // 通常攻撃またはスキル
+                            actPlayer.attack(targetPlayer, 40);
+                            if (!actPlayer.isAlive() || !targetPlayer.isAlive()) {
+                                break turnLoop;
+                            }
+                            actPlayer.halveProcess();
+                            break;
+                        }
+                        case '速度を持ち越す':
+                        default: {
+                            if (!actPlayer.passed) {
+                                // 速度持ち越し処理
+                                actPlayer.passed = true;
+                                actPlayer.yojoPoints = actPlayer.actionPoints;
+                                if (actPlayer.yojoPoints > actPlayer.speed) {
+                                    actPlayer.yojoPoints = actPlayer.speed;
+                                }
+                                actPlayer.actionPoints = 0;
+                            }
+                            break;
+                        }
+                    }
+
+                    if (!actPlayer.isAlive() || !targetPlayer.isAlive()) {
+                        break turnLoop;
                     }
                 }
 
