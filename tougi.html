@@ -298,10 +298,10 @@
                 if (roll <= this.fumble) {
                     attackFumble = true
                 }
-                if (roll >= 100 - target.critical) {
+                if (evasionRoll >= 100 - target.critical) {
                     defenceCritical = true
                 }
-                if (roll <= target.fumble) {
+                if (evasionRoll <= target.fumble) {
                     defenceFumble = true
                 }
 
