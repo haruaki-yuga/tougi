@@ -167,6 +167,8 @@
                         required></div>
                 <div><label for="player1_resistance">抵抗: </label><input type="number" id="player1_resistance" value="10"
                         required></div>
+                <div><label for="player1_mobility">機動力: </label><input type="number" id="player1_mobility" value="4"
+                        required></div>
                 <div><span class="range-label">通常攻撃射程：</span></div>
                 <div class="range-container">
                     <div class="range-item">
@@ -221,6 +223,8 @@
                 <div><label for="player2_defense">防御: </label><input type="number" id="player2_defense" value="10"
                         required></div>
                 <div><label for="player2_resistance">抵抗: </label><input type="number" id="player2_resistance" value="10"
+                        required></div>
+                <div><label for="player2_mobility">機動力: </label><input type="number" id="player2_mobility" value="4"
                         required></div>
                 <div><span class="range-label">通常攻撃射程：</span></div>
                 <div class="range-container">
@@ -281,7 +285,7 @@
         let rangeMeter;
 
         class Character {
-            constructor(name, hp, mainAttack, subAttack, speed, critical, fumble, drama, hit, evasion, defense, resistance) {
+            constructor(name, hp, mainAttack, subAttack, speed, critical, fumble, drama, hit, evasion, defense, resistance, mobility) {
                 this.name = name;
                 this.initialHp = hp;
                 this.hp = hp;
@@ -295,6 +299,7 @@
                 this.evasion = evasion;
                 this.defense = defense;
                 this.resistance = resistance;
+                this.mobility = mobility;
                 this.alive = true;
                 this.actionPoints = 0;
                 this.yojoPoints = 0;
@@ -502,7 +507,8 @@
                 parseInt(document.getElementById('player1_hit').value),
                 parseInt(document.getElementById('player1_evasion').value),
                 parseInt(document.getElementById('player1_defense').value),
-                parseInt(document.getElementById('player1_resistance').value)
+                parseInt(document.getElementById('player1_resistance').value),
+                parseInt(document.getElementById('player1_mobility').value)
             );
 
             player2 = new Character(
@@ -517,7 +523,8 @@
                 parseInt(document.getElementById('player2_hit').value),
                 parseInt(document.getElementById('player2_evasion').value),
                 parseInt(document.getElementById('player2_defense').value),
-                parseInt(document.getElementById('player2_resistance').value)
+                parseInt(document.getElementById('player2_resistance').value),
+                parseInt(document.getElementById('player2_mobility').value)
             );
 
             range = Number(document.getElementById('initial_range_meter').value);
@@ -535,9 +542,16 @@
 
                 log(`\nターン ${turn}:`);
 
+                // BS判定フェーズ
+                // ダメージバッドステータスのダメージ処理
+                // →バッドステータスの自然回復判定
+                //【呪い】を受けていない状態で3回の自然回復判定を行うと、そのバッドステータスは消滅する
+
+                // 速度決定フェーズ
                 player1.rollInitiative();
                 player2.rollInitiative();
 
+                // 行動フェーズ
                 let firstPlayer, secondPlayer;
                 if (player1.actionPoints > player2.actionPoints) {
                     firstPlayer = player1;
@@ -574,14 +588,14 @@
             let result = document.getElementById('result');
             if (player1.isAlive() && player2.isAlive()) {
                 // 次の項目を1ポイントとし、20ターン経過時にポイントが高い方が勝者。それでも決着が付かない場合は引き分け。
-                
+
                 log(`20ターン終了時に両者生存のため勝敗判定に移行！`);
-                
+
                 // １．与ダメージの総数が多い方
                 log(`与ダメージ総計`);
                 log(`${player1.name}の与ダメージ総計は${player1.damageScoreForJudge}`);
                 log(`${player2.name}の与ダメージ総計は${player2.damageScoreForJudge}`);
-                if(player1.damageScoreForJudge > player2.damageScoreForJudge) {
+                if (player1.damageScoreForJudge > player2.damageScoreForJudge) {
                     log(`${player1.name}に1点！`);
                     player1.judgePoints++;
                 } else if (player1.damageScoreForJudge < player2.damageScoreForJudge) {
@@ -590,12 +604,12 @@
                 } else {
                     log(`互角！`);
                 }
-                
+
                 // ２．クリーンヒット以上の回数が多い方
                 log(`クリーンヒット以上の攻撃回数`);
                 log(`${player1.name}のクリーンヒット以上の攻撃回数は${player1.cleanHitOverCountForJudge}`);
                 log(`${player2.name}のクリーンヒット以上の攻撃回数は${player2.cleanHitOverCountForJudge}`);
-                if(player1.cleanHitOverCountForJudge > player2.cleanHitOverCountForJudge) {
+                if (player1.cleanHitOverCountForJudge > player2.cleanHitOverCountForJudge) {
                     log(`${player1.name}に1点！`);
                     player1.judgePoints++;
                 } else if (player1.cleanHitOverCountForJudge < player2.cleanHitOverCountForJudge) {
@@ -604,29 +618,29 @@
                 } else {
                     log(`互角！`);
                 }
-                
+
                 // ３．残HPの割合が多い方
-                const player1HpPercentage = Math.round(player1.hp/player1.initialHp*100);
-                const player2HpPercentage = Math.round(player2.hp/player2.initialHp*100);
+                const player1HpPercentage = Math.round(player1.hp / player1.initialHp * 100);
+                const player2HpPercentage = Math.round(player2.hp / player2.initialHp * 100);
                 log(`残HP割合`);
                 log(`${player1.name}のHPは${player1.hp}/${player1.initialHp}(${player1HpPercentage}%)`);
                 log(`${player2.name}のHPは${player2.hp}/${player2.initialHp}(${player2HpPercentage}%)`);
-                if(Math.round(player1.hp/player1.initialHp*100) > Math.round(player2.hp/player2.initialHp*100)) {
+                if (Math.round(player1.hp / player1.initialHp * 100) > Math.round(player2.hp / player2.initialHp * 100)) {
                     log(`${player1.name}に1点！`);
                     player1.judgePoints++;
-                } else if (Math.round(player1.hp/player1.initialHp*100) < Math.round(player2.hp/player2.initialHp*100)) {
+                } else if (Math.round(player1.hp / player1.initialHp * 100) < Math.round(player2.hp / player2.initialHp * 100)) {
                     log(`${player2.name}に1点！`);
                     player2.judgePoints++;
                 } else {
                     log(`互角！`);
                 }
-                
-                
+
+
                 log(`${player1.name}の合計ポイントは${player1.judgePoints}！`);
                 log(`${player2.name}の合計ポイントは${player2.judgePoints}！`);
                 log(`よって……`);
                 // 結果の判定
-                if(player1.judgePoints > player2.judgePoints) {
+                if (player1.judgePoints > player2.judgePoints) {
                     result.innerHTML = `${player1.name}の勝利！`;
                     return;
                 } else if (player1.judgePoints < player2.judgePoints) {
