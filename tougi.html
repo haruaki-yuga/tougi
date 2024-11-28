@@ -335,12 +335,12 @@
                     let damage = 0;
                     let trueDamage = 0;
                     if (finalHitDegree <= 49 && !attackCritical) {
-                        damage = this.mainAttack * (15 + secondRoll / 4) / 100 + this.subAttack;
+                        damage = this.mainAttack * (15 + secondRoll / 4) / 100;
                         target.resistance += 50;
                         log(`${this.name}はグレイズヒットで攻撃！`);
                     } else if (finalHitDegree <= 99 || (finalHitDegree <= 49 && attackCritical)) {
                         // 命中判定のクリティカル時はライトヒットを保証
-                        damage = this.mainAttack * (30 + secondRoll / 2) / 100 + this.subAttack;
+                        damage = this.mainAttack * (30 + secondRoll / 2) / 100;
                         target.resistance += 30;
                         log(`${this.name}はライトヒットで攻撃！`);
                     } else if (finalHitDegree <= 149) {
