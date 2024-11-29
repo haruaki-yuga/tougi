@@ -425,7 +425,7 @@
             }
 
             // ダメージを受けるメソッド
-            takeDamage(damage, trueDamage, judgeHitDegree, defenceFumble) {
+            takeDamage(damage, trueDamage, judgeHitDegree, defenceFumble, element, elementLevel) {
 
                 this.takeDamagePreProcess(judgeHitDegree);
 
@@ -442,7 +442,9 @@
                     log(`${this.name}は状態異常に対する抵抗が発動しました！`);
                 }
 
-                damage = Math.round(damage + trueDamage);
+                const elementFix = this.getElementFix(element, elementLevel);
+
+                damage = Math.round((damage + trueDamage) * elementFix);
 
                 this.hp -= damage;
                 log(`${this.name}は${damage}ダメージを受けました！\n`);
@@ -471,6 +473,82 @@
 
                 // 与えたダメージ量を返却
                 return damage
+            }
+
+            // 属性補正倍率を取得
+            // this.element = ダメージを受ける側の属性
+            // element = ダメージを与える側の属性
+            getElementFix(element, elementLevel) {
+                let percentage = 100;
+                switch (this.element) {
+                    case '火': {
+                        // 弱点となる方
+                        if (element === '水') {
+                            percentage = 100 + elementLevel * 5
+                        }
+                        // 耐性がある方
+                        if (element === '風') {
+                            percentage = 100 - this.elementLevel * 5
+                        }
+                        break;
+                    }
+                    case '水': {
+                        // 弱点となる方
+                        if (element === '土') {
+                            percentage = 100 + elementLevel * 5
+                        }
+                        // 耐性がある方
+                        if (element === '火') {
+                            percentage = 100 - this.elementLevel * 5
+                        }
+                        break;
+                    }
+                    case '土': {
+                        // 弱点となる方
+                        if (element === '風') {
+                            percentage = 100 + elementLevel * 5
+                        }
+                        // 耐性がある方
+                        if (element === '水') {
+                            percentage = 100 - this.elementLevel * 5
+                        }
+                        break;
+                    }
+                    case '風': {
+                        // 弱点となる方
+                        if (element === '火') {
+                            percentage = 100 + elementLevel * 5
+                        }
+                        // 耐性がある方
+                        if (element === '土') {
+                            percentage = 100 - this.elementLevel * 5
+                        }
+                        break;
+                    }
+                    case '光': {
+                        // 弱点となる方
+                        if (element === '闇') {
+                            percentage = 100 + elementLevel * 7
+                        }
+                        break;
+                    }
+                    case '闇': {
+                        // 弱点となる方
+                        if (element === '光') {
+                            percentage = 100 + elementLevel * 7
+                        }
+                        break;
+                    }
+                    case '無': {
+                        // 弱点となる方
+                        if (element === '光') {
+                            percentage = 100 + elementLevel * 3
+                        } else if (element === '闇') {
+                            percentage = 100 + elementLevel * 3
+                        }
+                    }
+                }
+                return percentage / 100;
             }
 
             takeDamagePreProcess(judgeHitDegree) {
@@ -696,7 +774,7 @@
                     }
 
                     // ダメージをターゲットに与える
-                    this.damageScoreForJudge += target.takeDamage(damage, trueDamage, judgeHitDegree, defenceFumble);
+                    this.damageScoreForJudge += target.takeDamage(damage, trueDamage, judgeHitDegree, defenceFumble, this.element, this.elementLevel);
 
                 } else if (hitChance <= finalEvasion) {
                     // 完全回避の場合
