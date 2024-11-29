@@ -40,11 +40,11 @@
             margin: 0 auto;
         }
 
-        .playerForm {
+        .player_form {
             width: 45%;
         }
 
-        .playerForm div {
+        .player_form div {
             margin-bottom: 10px;
         }
 
@@ -59,7 +59,7 @@
             margin-top: 20px;
         }
 
-        #battleLog {
+        #battle_log {
             font-family: 'Courier New', monospace;
             white-space: pre-wrap;
             background-color: #f0f0f0;
@@ -74,14 +74,14 @@
             /* フォントサイズを少し大きく */
         }
 
-        .checkbox-container {
+        #checkbox_container {
             display: inline-flex;
             align-items: center;
             font-size: 16px;
             cursor: pointer;
         }
 
-        .checkbox-container label {
+        #checkbox_container label {
             display: flex;
             align-items: center;
             padding: 5px 10px;
@@ -90,12 +90,12 @@
             width: 10em;
         }
 
-        .checkbox-container label:hover {
+        #checkbox_container label:hover {
             background-color: #f0f0f0;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
 
-        .checkbox-container input[type="checkbox"] {
+        #checkbox_container input[type="checkbox"] {
             width: 16px;
             height: 16px;
             margin-right: 8px;
@@ -139,9 +139,9 @@
 
     <div id="container">
         <!-- プレイヤー1の入力フォーム -->
-        <div class="playerForm">
+        <div class="player_form">
             <h2>プレイヤー1</h2>
-            <form id="player1Form">
+            <form id="player1_form">
                 <div><label for="player1_name">名前: </label><input type="text" id="player1_name" value="プレイヤー1" required>
                 </div>
                 <div><label for="player1_hp">HP: </label><input type="number" id="player1_hp" value="100" required>
@@ -196,9 +196,9 @@
         </div>
 
         <!-- プレイヤー2の入力フォーム -->
-        <div class="playerForm">
+        <div class="player_form">
             <h2>プレイヤー2</h2>
-            <form id="player2Form">
+            <form id="player2_form">
                 <div><label for="player2_name">名前: </label><input type="text" id="player2_name" value="プレイヤー2" required>
                 </div>
                 <div><label for="player2_hp">HP: </label><input type="number" id="player2_hp" value="100" required>
@@ -259,10 +259,10 @@
 
     <button onclick="startBattle()">バトル開始</button>
     <!-- ログをクリアするボタン -->
-    <button id="clearLogButton">ログをクリア</button>
-    <div class="checkbox-container">
-        <label for="result-check">
-            <input type="checkbox" id="result-check" name="result-check" checked>
+    <button id="clear_log_button">ログをクリア</button>
+    <div id="checkbox_container">
+        <label for="result_check">
+            <input type="checkbox" id="result_check" name="result_check" checked>
             勝敗判定を行う
         </label>
     </div>
@@ -271,16 +271,16 @@
     <div id="result"></div>
 
     <h2>バトルログ</h2>
-    <div id="battleLog"></div>
+    <div id="battle_log"></div>
     <script>
         // ログをクリアする関数
         function clearBattleLog() {
-            const logArea = document.getElementById('battleLog');
+            const logArea = document.getElementById('battle_log');
             logArea.innerHTML = ''; // ログ内容を空にする
         }
 
         // ログをクリアするボタンのイベントリスナーを追加
-        document.getElementById('clearLogButton').addEventListener('click', clearBattleLog);
+        document.getElementById('clear_log_button').addEventListener('click', clearBattleLog);
 
         let rangeMeter;
 
@@ -733,7 +733,7 @@
         let player1, player2;
 
         function log(message) {
-            const battleLog = document.getElementById('battleLog');
+            const battleLog = document.getElementById('battle_log');
             battleLog.textContent += message + '\n';
             battleLog.scrollTop = battleLog.scrollHeight;
         }
@@ -789,7 +789,7 @@
 
             log(`バトル開始！ ${player1.name} vs ${player2.name}`);
 
-            const suspensionJudgeFlag = document.getElementById('result-check').checked; // 勝敗判定を行うかどうか
+            const suspensionJudgeFlag = document.getElementById('result_check').checked; // 勝敗判定を行うかどうか
 
             let turn = 1;
             turnLoop: while (player1.isAlive() && player2.isAlive()) {
