@@ -699,12 +699,11 @@
 
                         if (targetRangeIndex === currentRangeIndex) {
                             this.rangeHitFix = fixValue;
-                            this.hit += fixValue;
                         }
                     }
                 }
 
-                return this.hit;
+                this.hit += this.rangeHitFix;
             }
 
             halveProcess() {
