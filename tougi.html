@@ -40,11 +40,11 @@
             margin: 0 auto;
         }
 
-        .playerForm {
+        .player_form {
             width: 45%;
         }
 
-        .playerForm div {
+        .player_form div {
             margin-bottom: 10px;
         }
 
@@ -59,7 +59,7 @@
             margin-top: 20px;
         }
 
-        #battleLog {
+        #battle_log {
             font-family: 'Courier New', monospace;
             white-space: pre-wrap;
             background-color: #f0f0f0;
@@ -74,14 +74,14 @@
             /* フォントサイズを少し大きく */
         }
 
-        .checkbox-container {
+        #checkbox_container {
             display: inline-flex;
             align-items: center;
             font-size: 16px;
             cursor: pointer;
         }
 
-        .checkbox-container label {
+        #checkbox_container label {
             display: flex;
             align-items: center;
             padding: 5px 10px;
@@ -90,12 +90,12 @@
             width: 10em;
         }
 
-        .checkbox-container label:hover {
+        #checkbox_container label:hover {
             background-color: #f0f0f0;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
 
-        .checkbox-container input[type="checkbox"] {
+        #checkbox_container input[type="checkbox"] {
             width: 16px;
             height: 16px;
             margin-right: 8px;
@@ -139,9 +139,9 @@
 
     <div id="container">
         <!-- プレイヤー1の入力フォーム -->
-        <div class="playerForm">
+        <div class="player_form">
             <h2>プレイヤー1</h2>
-            <form id="player1Form">
+            <form id="player1_form">
                 <div><label for="player1_name">名前: </label><input type="text" id="player1_name" value="プレイヤー1" required>
                 </div>
                 <div><label for="player1_hp">HP: </label><input type="number" id="player1_hp" value="100" required>
@@ -196,9 +196,9 @@
         </div>
 
         <!-- プレイヤー2の入力フォーム -->
-        <div class="playerForm">
+        <div class="player_form">
             <h2>プレイヤー2</h2>
-            <form id="player2Form">
+            <form id="player2_form">
                 <div><label for="player2_name">名前: </label><input type="text" id="player2_name" value="プレイヤー2" required>
                 </div>
                 <div><label for="player2_hp">HP: </label><input type="number" id="player2_hp" value="100" required>
@@ -259,10 +259,10 @@
 
     <button onclick="startBattle()">バトル開始</button>
     <!-- ログをクリアするボタン -->
-    <button id="clearLogButton">ログをクリア</button>
-    <div class="checkbox-container">
-        <label for="result-check">
-            <input type="checkbox" id="result-check" name="result-check" checked>
+    <button id="clear_log_button">ログをクリア</button>
+    <div id="checkbox_container">
+        <label for="result_check">
+            <input type="checkbox" id="result_check" name="result_check" checked>
             勝敗判定を行う
         </label>
     </div>
@@ -271,16 +271,16 @@
     <div id="result"></div>
 
     <h2>バトルログ</h2>
-    <div id="battleLog"></div>
+    <div id="battle_log"></div>
     <script>
         // ログをクリアする関数
         function clearBattleLog() {
-            const logArea = document.getElementById('battleLog');
+            const logArea = document.getElementById('battle_log');
             logArea.innerHTML = ''; // ログ内容を空にする
         }
 
         // ログをクリアするボタンのイベントリスナーを追加
-        document.getElementById('clearLogButton').addEventListener('click', clearBattleLog);
+        document.getElementById('clear_log_button').addEventListener('click', clearBattleLog);
 
         let rangeMeter;
 
@@ -329,6 +329,14 @@
             }
         }
 
+        const HIT_DEGREE = {
+            GRAZE_HIT: 1,
+            LIGHT_HIT: 2,
+            CLEAN_HIT: 3,
+            HARD_HIT: 4,
+            SMASH_HIT: 5,
+        };
+
         class Character {
             constructor(name, hp, mainAttack, subAttack, speed, critical, fumble, drama, hit, evasion, defense, resistance, mobility, compatibleRange) {
                 this.name = name;
@@ -359,7 +367,10 @@
             }
 
             // ダメージを受けるメソッド
-            takeDamage(damage, trueDamage, defenceFumble) {
+            takeDamage(damage, trueDamage, judgeHitDegree, defenceFumble) {
+
+                this.takeDamagePreProcess(judgeHitDegree);
+
                 if (!defenceFumble) {
                     let defenseChance = Math.random() * 100;
                     if (defenseChance >= (100 - this.defense) && defenseChance > this.fumble) {
@@ -398,8 +409,72 @@
                     }
                 }
 
+                this.takeDamagePostProcess(judgeHitDegree);
+
                 // 与えたダメージ量を返却
                 return damage
+            }
+
+            takeDamagePreProcess(judgeHitDegree) {
+                switch (judgeHitDegree) {
+                    case HIT_DEGREE.GRAZE_HIT: {
+                        this.resistance += 50;
+                        break;
+                    }
+                    case HIT_DEGREE.LIGHT_HIT: {
+                        this.resistance += 30;
+                        break;
+                    }
+                    case HIT_DEGREE.CLEAN_HIT: {
+                        this.resistance += 0;
+                        this.drama -= 10;
+                        break;
+                    }
+                    case HIT_DEGREE.HARD_HIT: {
+                        this.resistance -= 25;
+                        this.drama -= 20;
+                        break;
+                    }
+                    case HIT_DEGREE.SMASH_HIT: {
+                        this.resistance -= 50;
+                        this.drama -= 30;
+                        break;
+                    }
+                    default: {
+                        throw new Error(`judgeHitDegree:${judgeHitDegree}`);
+                    }
+                }
+            }
+
+            takeDamagePostProcess(judgeHitDegree) {
+                switch (judgeHitDegree) {
+                    case HIT_DEGREE.GRAZE_HIT: {
+                        this.resistance -= 50;
+                        break;
+                    }
+                    case HIT_DEGREE.LIGHT_HIT: {
+                        this.resistance -= 30;
+                        break;
+                    }
+                    case HIT_DEGREE.CLEAN_HIT: {
+                        this.resistance += 0;
+                        this.drama += 10;
+                        break;
+                    }
+                    case HIT_DEGREE.HARD_HIT: {
+                        this.resistance += 25;
+                        this.drama += 20;
+                        break;
+                    }
+                    case HIT_DEGREE.SMASH_HIT: {
+                        this.resistance += 50;
+                        this.drama += 30;
+                        break;
+                    }
+                    default: {
+                        throw new Error(`judgeHitDegree:${judgeHitDegree}`);
+                    }
+                }
             }
 
             // 行動可能かをチェック
@@ -482,10 +557,10 @@
                 if (roll <= this.fumble) {
                     attackFumble = true
                 }
-                if (roll >= 100 - target.critical) {
+                if (evasionRoll >= 100 - target.critical) {
                     defenceCritical = true
                 }
-                if (roll <= target.fumble) {
+                if (evasionRoll <= target.fumble) {
                     defenceFumble = true
                 }
 
@@ -510,6 +585,7 @@
                     // ⑥ 最終的な命中度を判定するためのダイス
 
                     let finalHitDegree = hitChance - finalEvasion; // 加算された最終命中度
+                    let judgeHitDegree = null;
 
                     // ログ出力: 最終命中度のダイス結果と最終的な命中度
                     log(`${this.name}の命中度判定ダイス: ${secondRoll}`);
@@ -519,13 +595,13 @@
                     let damage = 0;
                     let trueDamage = 0;
                     if (finalHitDegree <= 49 && !attackCritical) {
-                        damage = this.mainAttack * (15 + secondRoll / 4) / 100 + this.subAttack;
-                        target.resistance += 50;
+                        damage = this.mainAttack * (15 + secondRoll / 4) / 100;
+                        judgeHitDegree = HIT_DEGREE.GRAZE_HIT;
                         log(`${this.name}はグレイズヒットで攻撃！`);
                     } else if (finalHitDegree <= 99 || (finalHitDegree <= 49 && attackCritical)) {
                         // 命中判定のクリティカル時はライトヒットを保証
-                        damage = this.mainAttack * (30 + secondRoll / 2) / 100 + this.subAttack;
-                        target.resistance += 30;
+                        damage = this.mainAttack * (30 + secondRoll / 2) / 100;
+                        judgeHitDegree = HIT_DEGREE.LIGHT_HIT;
                         log(`${this.name}はライトヒットで攻撃！`);
                     } else if (finalHitDegree <= 149) {
                         if (attackCritical) {
@@ -534,8 +610,7 @@
                         } else {
                             damage = this.mainAttack + this.subAttack;
                         }
-                        target.resistance += 0;
-                        target.drama -= 10;
+                        judgeHitDegree = HIT_DEGREE.CLEAN_HIT;
                         log(`${this.name}はクリーンヒットで攻撃！`);
                         this.cleanHitOverCountForJudge++;
                     } else if (finalHitDegree <= 199) {
@@ -546,8 +621,7 @@
                             damage = this.mainAttack * (1 + secondRoll / 200);
                             trueDamage = this.subAttack * (1 + secondRoll / 200);
                         }
-                        target.resistance -= 25;
-                        target.drama -= 20;
+                        judgeHitDegree = HIT_DEGREE.HARD_HIT;
                         log(`${this.name}はハードヒットで攻撃！`);
                         this.cleanHitOverCountForJudge++;
                     } else {
@@ -558,14 +632,13 @@
                             damage = this.mainAttack * (1 + secondRoll / 100);
                             trueDamage = this.subAttack * (1 + secondRoll / 100);
                         }
-                        target.resistance -= 50;
-                        target.drama -= 30;
+                        judgeHitDegree = HIT_DEGREE.SMASH_HIT;
                         log(`${this.name}はスマッシュヒットで攻撃！`);
                         this.cleanHitOverCountForJudge++;
                     }
 
                     // ダメージをターゲットに与える
-                    this.damageScoreForJudge += target.takeDamage(damage, trueDamage, defenceFumble);
+                    this.damageScoreForJudge += target.takeDamage(damage, trueDamage, judgeHitDegree, defenceFumble);
 
                 } else if (hitChance <= finalEvasion) {
                     // 完全回避の場合
@@ -660,7 +733,7 @@
         let player1, player2;
 
         function log(message) {
-            const battleLog = document.getElementById('battleLog');
+            const battleLog = document.getElementById('battle_log');
             battleLog.textContent += message + '\n';
             battleLog.scrollTop = battleLog.scrollHeight;
         }
@@ -716,7 +789,7 @@
 
             log(`バトル開始！ ${player1.name} vs ${player2.name}`);
 
-            const suspensionJudgeFlag = document.getElementById('result-check').checked; // 勝敗判定を行うかどうか
+            const suspensionJudgeFlag = document.getElementById('result_check').checked; // 勝敗判定を行うかどうか
 
             let turn = 1;
             turnLoop: while (player1.isAlive() && player2.isAlive()) {
