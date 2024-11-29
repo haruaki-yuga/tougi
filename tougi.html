@@ -100,6 +100,37 @@
             height: 16px;
             margin-right: 8px;
         }
+
+        .range-label {
+            font-size: 14px;
+            display: inline-block;
+            width: 8em;
+        }
+
+        .range-container label {
+            display: flex;
+            align-items: center;
+            padding: 5px 5px 0px 5px;
+            width: 1em;
+        }
+
+        .range-container input {
+            width: 1em;
+        }
+
+        .range-container {
+            display: flex;
+            justify-content: left;
+            align-items: center;
+            gap: 10px;
+            height: 3em;
+        }
+
+        .range-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
     </style>
 </head>
 
@@ -136,6 +167,31 @@
                         required></div>
                 <div><label for="player1_resistance">抵抗: </label><input type="number" id="player1_resistance" value="10"
                         required></div>
+                <div><label for="player1_mobility">機動力: </label><input type="number" id="player1_mobility" value="4"
+                        required></div>
+                <div><span class="range-label">通常攻撃射程：</span></div>
+                <div class="range-container">
+                    <div class="range-item">
+                        <label for="close">至</label>
+                        <input type="checkbox" id="player1_attack_range_check_0" name="attackRange" checked>
+                    </div>
+                    <div class="range-item">
+                        <label for="near">近</label>
+                        <input type="checkbox" id="player1_attack_range_check_1" name="attackRange">
+                    </div>
+                    <div class="range-item">
+                        <label for="middle">中</label>
+                        <input type="checkbox" id="player1_attack_range_check_2" name="attackRange">
+                    </div>
+                    <div class="range-item">
+                        <label for="far">遠</label>
+                        <input type="checkbox" id="player1_attack_range_check_3" name="attackRange" checked>
+                    </div>
+                    <div class="range-item">
+                        <label for="ultra">超</label>
+                        <input type="checkbox" id="player1_attack_range_check_4" name="attackRange" value="middle">
+                    </div>
+                </div>
             </form>
         </div>
 
@@ -168,9 +224,38 @@
                         required></div>
                 <div><label for="player2_resistance">抵抗: </label><input type="number" id="player2_resistance" value="10"
                         required></div>
+                <div><label for="player2_mobility">機動力: </label><input type="number" id="player2_mobility" value="4"
+                        required></div>
+                <div><span class="range-label">通常攻撃射程：</span></div>
+                <div class="range-container">
+                    <div class="range-item">
+                        <label for="close">至</label>
+                        <input type="checkbox" id="player2_attack_range_check_0" name="attackRange" checked>
+                    </div>
+                    <div class="range-item">
+                        <label for="near">近</label>
+                        <input type="checkbox" id="player2_attack_range_check_1" name="attackRange">
+                    </div>
+                    <div class="range-item">
+                        <label for="middle">中</label>
+                        <input type="checkbox" id="player2_attack_range_check_2" name="attackRange">
+                    </div>
+                    <div class="range-item">
+                        <label for="far">遠</label>
+                        <input type="checkbox" id="player2_attack_range_check_3" name="attackRange" checked>
+                    </div>
+                    <div class="range-item">
+                        <label for="ultra">超</label>
+                        <input type="checkbox" id="player2_attack_range_check_4" name="attackRange">
+                    </div>
+                </div>
             </form>
         </div>
     </div>
+
+    <div id="initial_range_meter_container"><label for="initial_range_meter">開始時距離(m): </label><input type="number"
+            id="initial_range_meter" min="0" value="30" required>
+        </select></div>
 
     <button onclick="startBattle()">バトル開始</button>
     <!-- ログをクリアするボタン -->
@@ -197,6 +282,53 @@
         // ログをクリアするボタンのイベントリスナーを追加
         document.getElementById('clearLogButton').addEventListener('click', clearBattleLog);
 
+        let rangeMeter;
+
+        // レンジに対応する距離範囲を定義
+        const rangeConditions = [
+            distance => distance >= 0 && distance <= 3,      // 至近距離
+            distance => distance >= 0 && distance <= 10,     // 近距離
+            distance => distance >= 0 && distance <= 20,     // 中距離
+            distance => distance >= 20 && distance <= 30,    // 遠距離
+            distance => distance >= 30 && distance <= 40     // 超遠距離
+        ];
+
+        // レンジごとの補正を定義
+        const rangeFix = {
+            0: { 0: 10 },                          // 至近距離の補正
+            1: { 0: 7, 1: 7 },                     // 近距離の補正
+            2: { 0: 5, 1: 5, 2: 10 },              // 中距離の補正
+            3: { 0: -10, 1: -10, 2: 5, 3: 5 },     // 遠距離の補正
+            4: { 2: -10, 3: 5, 4: 5 }              // 超遠距離の補正
+        };
+
+        // レンジごとの適正距離を定義
+        const optimalTargetDistance = {
+            normal: {
+                0: 0,
+                1: 10,
+                2: 20,
+                3: 30,
+                4: 40,
+            },
+            // 近めで戦う(不使用)
+            near: {
+                0: 0,
+                1: 4,
+                2: 11,
+                3: 21,
+                4: 31,
+            },
+            // 離れて戦う(不使用)
+            far: {
+                0: 3,
+                1: 10,
+                2: 20,
+                3: 30,
+                4: 40,
+            }
+        }
+
         const HIT_DEGREE = {
             GRAZE_HIT: 1,
             LIGHT_HIT: 2,
@@ -206,7 +338,7 @@
         };
 
         class Character {
-            constructor(name, hp, mainAttack, subAttack, speed, critical, fumble, drama, hit, evasion, defense, resistance) {
+            constructor(name, hp, mainAttack, subAttack, speed, critical, fumble, drama, hit, evasion, defense, resistance, mobility, compatibleRange) {
                 this.name = name;
                 this.initialHp = hp;
                 this.hp = hp;
@@ -220,13 +352,18 @@
                 this.evasion = evasion;
                 this.defense = defense;
                 this.resistance = resistance;
+                this.mobility = mobility;
                 this.alive = true;
+                this.passed = false;
                 this.actionPoints = 0;
                 this.yojoPoints = 0;
                 this.dramaEnhanceCount = 0;
                 this.cleanHitOverCountForJudge = 0;
                 this.damageScoreForJudge = 0;
                 this.judgePoints = 0;
+                this.nextAction = null;
+                this.compatibleRange = compatibleRange;
+                this.rangeHitFix;
             }
 
             // ダメージを受けるメソッド
@@ -353,7 +490,54 @@
                 log(`${this.name}のHP:${this.hp} 行動力:${this.actionPoints}(速度:${this.speed}+ダイス1:${roll1}+ダイス2:${roll2}+繰り越し分:${this.yojoPoints})`);
             }
 
-            attack(target) {
+            move() {
+                // 現在の距離(m)
+                let currentDistance = rangeMeter;
+                // 移動可能な最大距離(m)
+                let movableMeter = this.mobility * 10;
+
+                // 目標地点を探索
+                const findTargetPoint = (targetDistances, maxDistance) => {
+                    let targetPoint = null;
+                    let shortestDistance = Infinity;
+
+                    // 射程ごとにチェック
+                    for (const [range, target] of Object.entries(targetDistances)) {
+                        const rangeIndex = parseInt(range, 10);
+                        const distanceToTarget = Math.abs(target - rangeMeter);
+
+                        if (
+                            this.compatibleRange[rangeIndex] && // 対応可能な射程か
+                            distanceToTarget <= maxDistance && // 移動可能距離内か
+                            distanceToTarget < shortestDistance // 最短距離か
+                        ) {
+                            targetPoint = target;
+                            shortestDistance = distanceToTarget;
+                        }
+                    }
+
+                    return targetPoint;
+                };
+
+                // 最適な目標位置を探す
+                const targetPosition = findTargetPoint(optimalTargetDistance.normal, movableMeter);
+
+                // 条件を満たす位置が見つからなければ最大距離を移動
+                if (targetPosition === null) {
+                    rangeMeter = rangeMeter - movableMeter;
+                } else {
+                    rangeMeter = targetPosition;
+                }
+                log(`${this.name}は${rangeMeter}mの座標まで移動！`);
+                this.actionPoints -= 20;
+            }
+
+            attack(target, consumeActionPoints) {
+                this.attackPreProcess();
+                // 射程外の場合は攻撃できない
+                if (!this.withinNormalAttackRange()) {
+                    return;
+                }
                 let attackCritical = false
                 let attackFumble = false
                 let defenceCritical = false
@@ -460,14 +644,89 @@
                     // 完全回避の場合
                     log(`${target.name}は完全回避しました！`);
                 }
+                this.actionPoints -= consumeActionPoints; // 攻撃に必要な行動力を消費
 
-                // 行動力の消費
-                this.actionPoints -= 40; // 攻撃に必要な行動力を消費
-                this.actionPoints = Math.floor(this.actionPoints / 2); // 行動力半減
-                this.yojoPoints = this.actionPoints;
-                if (target.isAlive()) {
-                    log(`${this.name}の残り行動力: ${this.actionPoints}\n`);
+                this.attackPostProcess();
+            }
+
+            attackPreProcess() {
+                this.applyRangeFix();
+            }
+
+            attackPostProcess() {
+                this.applyRangeFix(true);
+            }
+
+            applyRangeFix(postProcess) {
+
+                if (postProcess) {
+                    this.hit -= this.rangeHitFix;
+                    return;
                 }
+
+                // 現在の射程インデックスを特定
+                const currentRangeIndex = rangeConditions.findIndex(condition => condition(rangeMeter));
+
+                // 射程対応状況に基づき補正を適用
+                for (const [weaponRange, fixes] of Object.entries(rangeFix)) {
+                    const weaponRangeIndex = parseInt(weaponRange, 10);
+
+                    // 現在の射程が対応していない場合はスキップ
+                    if (!this.compatibleRange[weaponRangeIndex]) continue;
+
+                    // 補正値を適用
+                    for (const [targetRange, fixValue] of Object.entries(fixes)) {
+                        const targetRangeIndex = parseInt(targetRange, 10);
+
+                        if (targetRangeIndex === currentRangeIndex) {
+                            this.rangeHitFix = fixValue;
+                            this.hit += fixValue;
+                        }
+                    }
+                }
+
+                return this.hit;
+            }
+
+            halveProcess() {
+                this.actionPoints = Math.floor(this.actionPoints / 2); // 行動力半減
+                log(`${this.name}の残り行動力: ${this.actionPoints}\n`);
+            }
+
+            decideAction(targetPlayer) {
+
+                const withinNormalAttackRange = this.withinNormalAttackRange();
+                if (this.actionPoints >= 60) {
+                    if (!withinNormalAttackRange) {
+                        this.nextAction = '移動通常攻撃';
+                    } else {
+                        this.nextAction = '通常攻撃';
+                    }
+                }
+                if (this.actionPoints < 60) {
+                    if (!withinNormalAttackRange) {
+                        // 現時点でこの行動値で取る行動を実装していないため持ち越す
+                        // 相手が攻撃可能で射程内であれば移動で距離を離す処理を検討する余地あり
+                        this.nextAction = '速度を持ち越す';
+                    } else {
+                        this.nextAction = '通常攻撃';
+                    }
+                }
+                if (this.actionPoints < 40) {
+                    // 現時点でこの行動値で取る行動を実装していないため持ち越す
+                    // 相手が攻撃可能で射程内であれば移動で距離を離す処理を検討する余地あり
+                    this.nextAction = '速度を持ち越す';
+                }
+                if (this.actionPoints < 20) {
+                    this.nextAction = '速度を持ち越す';
+                }
+            }
+
+            withinNormalAttackRange() {
+                // 各射程で対応可能かどうかを確認
+                const results = rangeConditions.map((condition, index) => condition(rangeMeter) && this.compatibleRange[index]);
+                // 一つでもtrueがあれば対応可能、すべてfalseなら対応不可
+                return results.some(result => result);
             }
         }
 
@@ -492,7 +751,15 @@
                 parseInt(document.getElementById('player1_hit').value),
                 parseInt(document.getElementById('player1_evasion').value),
                 parseInt(document.getElementById('player1_defense').value),
-                parseInt(document.getElementById('player1_resistance').value)
+                parseInt(document.getElementById('player1_resistance').value),
+                parseInt(document.getElementById('player1_mobility').value),
+                {
+                    0: document.getElementById('player1_attack_range_check_0').checked,
+                    1: document.getElementById('player1_attack_range_check_1').checked,
+                    2: document.getElementById('player1_attack_range_check_2').checked,
+                    3: document.getElementById('player1_attack_range_check_3').checked,
+                    4: document.getElementById('player1_attack_range_check_4').checked
+                }
             );
 
             player2 = new Character(
@@ -507,52 +774,104 @@
                 parseInt(document.getElementById('player2_hit').value),
                 parseInt(document.getElementById('player2_evasion').value),
                 parseInt(document.getElementById('player2_defense').value),
-                parseInt(document.getElementById('player2_resistance').value)
+                parseInt(document.getElementById('player2_resistance').value),
+                parseInt(document.getElementById('player2_mobility').value),
+                {
+                    0: document.getElementById('player2_attack_range_check_0').checked,
+                    1: document.getElementById('player2_attack_range_check_1').checked,
+                    2: document.getElementById('player2_attack_range_check_2').checked,
+                    3: document.getElementById('player2_attack_range_check_3').checked,
+                    4: document.getElementById('player2_attack_range_check_4').checked,
+                }
             );
+
+            rangeMeter = Number(document.getElementById('initial_range_meter').value);
+
             log(`バトル開始！ ${player1.name} vs ${player2.name}`);
 
             const suspensionJudgeFlag = document.getElementById('result-check').checked; // 勝敗判定を行うかどうか
 
             let turn = 1;
-            while (player1.isAlive() && player2.isAlive()) {
+            turnLoop: while (player1.isAlive() && player2.isAlive()) {
 
                 if (turn >= 21 && suspensionJudgeFlag) {
                     break;
                 }
 
                 log(`\nターン ${turn}:`);
+                player1.passed = false;
+                player2.passed = false;
 
+                // BS判定フェーズ
+                // ダメージバッドステータスのダメージ処理
+                // →バッドステータスの自然回復判定
+                //【呪い】を受けていない状態で3回の自然回復判定を行うと、そのバッドステータスは消滅する
+
+                // 速度決定フェーズ
                 player1.rollInitiative();
                 player2.rollInitiative();
 
-                let firstPlayer, secondPlayer;
-                if (player1.actionPoints > player2.actionPoints) {
-                    firstPlayer = player1;
-                    secondPlayer = player2;
-                } else if (player2.actionPoints > player1.actionPoints) {
-                    firstPlayer = player2;
-                    secondPlayer = player1;
-                } else {
-                    if (Math.random() < 0.5) {
-                        firstPlayer = player1;
-                        secondPlayer = player2;
+                // 行動フェーズ
+                let actPlayer, targetPlayer;
+
+                while (!player1.passed && !player2.passed) {
+
+                    // 行動者決定
+                    if (player1.actionPoints > player2.actionPoints) {
+                        actPlayer = player1;
+                        targetPlayer = player2;
+                    } else if (player2.actionPoints > player1.actionPoints) {
+                        actPlayer = player2;
+                        targetPlayer = player1;
                     } else {
-                        firstPlayer = player2;
-                        secondPlayer = player1;
-                    }
-                }
-
-                while (firstPlayer.isAlive() && secondPlayer.isAlive() && (firstPlayer.actionPoints >= 40 || secondPlayer.actionPoints >= 40)) {
-                    if (firstPlayer.actionPoints >= secondPlayer.actionPoints) {
-                        firstPlayer.attack(secondPlayer);
-                    }
-
-                    if (secondPlayer.isAlive() && secondPlayer.actionPoints >= firstPlayer.actionPoints && secondPlayer.actionPoints >= 40) {
-                        secondPlayer.attack(firstPlayer);
+                        if (Math.random() < 0.5) {
+                            actPlayer = player1;
+                            targetPlayer = player2;
+                        } else {
+                            actPlayer = player2;
+                            targetPlayer = player1;
+                        }
                     }
 
-                    if (!firstPlayer.isAlive() || !secondPlayer.isAlive()) {
-                        break;
+                    actPlayer.decideAction(targetPlayer);
+
+                    switch (actPlayer.nextAction) {
+                        case '移動通常攻撃': {
+                            // 移動が必要な状況で移動
+                            actPlayer.move();
+                            actPlayer.attack(targetPlayer, 40);
+                            if (!actPlayer.isAlive() || !targetPlayer.isAlive()) {
+                                break turnLoop;
+                            }
+                            actPlayer.halveProcess();
+                            break;
+                        }
+                        case '通常攻撃': {
+                            // 通常攻撃またはスキル
+                            actPlayer.attack(targetPlayer, 40);
+                            if (!actPlayer.isAlive() || !targetPlayer.isAlive()) {
+                                break turnLoop;
+                            }
+                            actPlayer.halveProcess();
+                            break;
+                        }
+                        case '速度を持ち越す':
+                        default: {
+                            if (!actPlayer.passed) {
+                                // 速度持ち越し処理
+                                actPlayer.passed = true;
+                                actPlayer.yojoPoints = actPlayer.actionPoints;
+                                if (actPlayer.yojoPoints > actPlayer.speed) {
+                                    actPlayer.yojoPoints = actPlayer.speed;
+                                }
+                                actPlayer.actionPoints = 0;
+                            }
+                            break;
+                        }
+                    }
+
+                    if (!actPlayer.isAlive() || !targetPlayer.isAlive()) {
+                        break turnLoop;
                     }
                 }
 
