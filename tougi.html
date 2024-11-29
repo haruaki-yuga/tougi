@@ -338,10 +338,11 @@
         };
 
         class Character {
-            constructor(name, hp, mainAttack, subAttack, speed, critical, fumble, drama, hit, evasion, defense, resistance, mobility, compatibleRange) {
+            constructor(name, hp, ap, mainAttack, subAttack, speed, critical, fumble, drama, hit, evasion, defense, resistance, mobility, compatibleRange) {
                 this.name = name;
                 this.initialHp = hp;
                 this.hp = hp;
+                this.ap = ap;
                 this.mainAttack = mainAttack;
                 this.subAttack = subAttack;
                 this.speed = speed;
@@ -742,6 +743,7 @@
             player1 = new Character(
                 document.getElementById('player1_name').value,
                 parseInt(document.getElementById('player1_hp').value),
+                parseInt(document.getElementById('player1_ap').value),
                 parseInt(document.getElementById('player1_attack').value),
                 parseInt(document.getElementById('player1_subAttack').value),
                 parseInt(document.getElementById('player1_speed').value),
@@ -765,6 +767,7 @@
             player2 = new Character(
                 document.getElementById('player2_name').value,
                 parseInt(document.getElementById('player2_hp').value),
+                parseInt(document.getElementById('player2_ap').value),
                 parseInt(document.getElementById('player2_attack').value),
                 parseInt(document.getElementById('player2_subAttack').value),
                 parseInt(document.getElementById('player2_speed').value),
