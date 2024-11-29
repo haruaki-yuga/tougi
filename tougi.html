@@ -203,7 +203,7 @@
                     </div>
                     <div class="range_item">
                         <label for="ultra">超</label>
-                        <input type="checkbox" id="player1_attack_range_check_4" name="player1_attackRange" value="middle">
+                        <input type="checkbox" id="player1_attack_range_check_4" name="player1_attackRange">
                     </div>
                 </div>
             </form>
@@ -985,7 +985,7 @@
         });
 
         // どのレンジにもチェックされていない時、至レンジにチェックを入れる
-        function addDefaultCheckEvent (playerId) {
+        function addDefaultCheckEvent(playerId) {
             // 全てのチェックボックス要素を取得
             const checkboxes = document.querySelectorAll(`input[name="${playerId}_attackRange"]`);
             const defaultCheckbox = document.getElementById(`${playerId}_attack_range_check_0`);
@@ -1055,13 +1055,13 @@
         // セレクトボックスのデータを作成
         function populateSelectBox(selectBox, formDataList) {
             // セレクトボックスをクリア
-            selectBox.innerHTML = "";
+            selectBox.innerHTML = "<option selected>(選択)</option>";
 
             // 各formDataをオプションに追加
             formDataList.forEach(data => {
                 const option = document.createElement("option");
                 option.value = data.key;
-                option.textContent = data.name || "(Unnamed)";
+                option.textContent = data.name || "(名前なし)";
                 selectBox.appendChild(option);
             });
 
@@ -1083,7 +1083,9 @@
 
             let selectedName = document.getElementById(`${playerId}_dataSelect`).value;
             let saveName;
-            if (selectedName === "new") {
+            if (selectedName === "(選択)") {
+                return;
+            } else if (selectedName === "new") {
                 const max = Object.keys(localStorage).filter(key => key.startsWith("formData"))
                     .map(item => {
                         const match = item.match(/^formData(\d+)$/);
@@ -1143,6 +1145,9 @@
         // データをロードする
         function loadData(playerId) {
             const saveName = document.getElementById(`${playerId}_dataSelect`).value;
+            if (saveName === "(選択)") {
+                return;
+            }
             const savedData = localStorage.getItem(saveName);
             if (savedData) {
                 const parsedData = JSON.parse(savedData);
