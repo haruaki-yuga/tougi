@@ -258,8 +258,7 @@
         </select></div>
 
     <button onclick="startBattle()">バトル開始</button>
-    <!-- ログをクリアするボタン -->
-    <button id="clear_log_button">ログをクリア</button>
+    <button onclick="clearBattleLog()">ログをクリア</button>
     <div id="checkbox_container">
         <label for="result_check">
             <input type="checkbox" id="result_check" name="result_check" checked>
@@ -273,15 +272,6 @@
     <h2>バトルログ</h2>
     <div id="battle_log"></div>
     <script>
-        // ログをクリアする関数
-        function clearBattleLog() {
-            const logArea = document.getElementById('battle_log');
-            logArea.innerHTML = ''; // ログ内容を空にする
-        }
-
-        // ログをクリアするボタンのイベントリスナーを追加
-        document.getElementById('clear_log_button').addEventListener('click', clearBattleLog);
-
         let rangeMeter;
 
         // レンジに対応する距離範囲を定義
@@ -953,6 +943,13 @@
             } else {
                 result.innerHTML = `${player1.name}の勝利！`;
             }
+        }
+    </script>
+    <script>
+        // ログをクリアする関数
+        function clearBattleLog() {
+            const logArea = document.getElementById('battle_log');
+            logArea.innerHTML = ''; // ログ内容を空にする
         }
     </script>
 </body>
