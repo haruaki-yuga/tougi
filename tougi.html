@@ -173,23 +173,23 @@
                 <div class="range-container">
                     <div class="range-item">
                         <label for="close">至</label>
-                        <input type="checkbox" id="player1_attack_range_check_0" name="attackRange" checked>
+                        <input type="checkbox" id="player1_attack_range_check_0" name="player1_attackRange" checked>
                     </div>
                     <div class="range-item">
                         <label for="near">近</label>
-                        <input type="checkbox" id="player1_attack_range_check_1" name="attackRange">
+                        <input type="checkbox" id="player1_attack_range_check_1" name="player1_attackRange">
                     </div>
                     <div class="range-item">
                         <label for="middle">中</label>
-                        <input type="checkbox" id="player1_attack_range_check_2" name="attackRange">
+                        <input type="checkbox" id="player1_attack_range_check_2" name="player1_attackRange">
                     </div>
                     <div class="range-item">
                         <label for="far">遠</label>
-                        <input type="checkbox" id="player1_attack_range_check_3" name="attackRange" checked>
+                        <input type="checkbox" id="player1_attack_range_check_3" name="player1_attackRange" checked>
                     </div>
                     <div class="range-item">
                         <label for="ultra">超</label>
-                        <input type="checkbox" id="player1_attack_range_check_4" name="attackRange" value="middle">
+                        <input type="checkbox" id="player1_attack_range_check_4" name="player1_attackRange" value="middle">
                     </div>
                 </div>
             </form>
@@ -230,23 +230,23 @@
                 <div class="range-container">
                     <div class="range-item">
                         <label for="close">至</label>
-                        <input type="checkbox" id="player2_attack_range_check_0" name="attackRange" checked>
+                        <input type="checkbox" id="player2_attack_range_check_0" name="player2_attackRange" checked>
                     </div>
                     <div class="range-item">
                         <label for="near">近</label>
-                        <input type="checkbox" id="player2_attack_range_check_1" name="attackRange">
+                        <input type="checkbox" id="player2_attack_range_check_1" name="player2_attackRange">
                     </div>
                     <div class="range-item">
                         <label for="middle">中</label>
-                        <input type="checkbox" id="player2_attack_range_check_2" name="attackRange">
+                        <input type="checkbox" id="player2_attack_range_check_2" name="player2_attackRange">
                     </div>
                     <div class="range-item">
                         <label for="far">遠</label>
-                        <input type="checkbox" id="player2_attack_range_check_3" name="attackRange" checked>
+                        <input type="checkbox" id="player2_attack_range_check_3" name="player2_attackRange" checked>
                     </div>
                     <div class="range-item">
                         <label for="ultra">超</label>
-                        <input type="checkbox" id="player2_attack_range_check_4" name="attackRange">
+                        <input type="checkbox" id="player2_attack_range_check_4" name="player2_attackRange">
                     </div>
                 </div>
             </form>
@@ -949,6 +949,31 @@
         function clearBattleLog() {
             const logArea = document.getElementById('battle_log');
             logArea.innerHTML = ''; // ログ内容を空にする
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            addDefaultCheckEvent('player1');
+            addDefaultCheckEvent('player2');
+        });
+
+        // どのレンジにもチェックされていない時、至レンジにチェックを入れる
+        function addDefaultCheckEvent (playerId) {
+            // 全てのチェックボックス要素を取得
+            const checkboxes = document.querySelectorAll(`input[name="${playerId}_attackRange"]`);
+            const defaultCheckbox = document.getElementById(`${playerId}_attack_range_check_0`);
+
+            // チェックボックスの変更イベントを監視
+            checkboxes.forEach((checkbox) => {
+                checkbox.addEventListener('change', () => {
+                    // すべてのチェック状態を取得
+                    const anyChecked = Array.from(checkboxes).some(checkbox => checkbox.checked);
+
+                    // すべてのチェックが外れている場合、デフォルトをチェック
+                    if (!anyChecked) {
+                        defaultCheckbox.checked = true;
+                    }
+                });
+            });
         }
     </script>
 </body>
