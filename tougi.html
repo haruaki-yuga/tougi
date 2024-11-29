@@ -142,6 +142,20 @@
         <div class="player_form">
             <h2>プレイヤー1</h2>
             <form id="player1_form">
+                <div>
+                    <select id="player1_dataSelect">
+                        <!-- ここにセーブデータが動的に追加される -->
+                    </select>
+                </div>
+                <div>
+                    <button type="button" onclick="saveData('player1')">セーブ</button>
+                    <button type="button" onclick="loadData('player1')">ロード</button>
+                    <button type="button" onclick="deleteSaveData('player1')">セーブ削除</button>
+                </div>
+                <div>
+                    <button type="button" onclick="exportData('player1')">エクスポート</button>
+                    <button type="button" onclick="importData('player1')">インポート</button>
+                </div>
                 <div><label for="player1_name">名前: </label><input type="text" id="player1_name" value="プレイヤー1" required>
                 </div>
                 <div><label for="player1_hp">HP: </label><input type="number" id="player1_hp" value="100" required>
@@ -199,6 +213,20 @@
         <div class="player_form">
             <h2>プレイヤー2</h2>
             <form id="player2_form">
+                <div>
+                    <select id="player2_dataSelect">
+                        　<!-- ここにセーブデータが動的に追加される -->
+                    </select>
+                </div>
+                <div>
+                    <button type="button" onclick="saveData('player2')">セーブ</button>
+                    <button type="button" onclick="loadData('player2')">ロード</button>
+                    <button type="button" onclick="deleteSaveData('player2')">セーブ削除</button>
+                </div>
+                <div>
+                    <button type="button" onclick="exportData('player2')">エクスポート</button>
+                    <button type="button" onclick="importData('player2')">インポート</button>
+                </div>
                 <div><label for="player2_name">名前: </label><input type="text" id="player2_name" value="プレイヤー2" required>
                 </div>
                 <div><label for="player2_hp">HP: </label><input type="number" id="player2_hp" value="100" required>
@@ -950,6 +978,182 @@
         function clearBattleLog() {
             const logArea = document.getElementById('battle_log');
             logArea.innerHTML = ''; // ログ内容を空にする
+        }
+    </script>
+    <script>
+
+        // 初期化: localStorageの"formData"に関連するすべてのデータを取得
+        window.addEventListener("load", () => {
+            refreshSelectBox();
+        });
+
+        function refreshSelectBox() {
+            const storedKeys = Object.keys(localStorage).filter(key => key.startsWith("formData"));
+            let formDataList = [];
+
+            // "formData"とつくデータを取得しリスト化
+            storedKeys.forEach(key => {
+                const data = JSON.parse(localStorage.getItem(key));
+                formDataList.push({ key, ...data });
+            });
+
+            // セレクトボックスにデータを追加
+            populateSelectBox(document.getElementById("player1_dataSelect"), formDataList);
+            populateSelectBox(document.getElementById("player2_dataSelect"), formDataList);
+        }
+
+        // セレクトボックスのデータを作成
+        function populateSelectBox(selectBox, formDataList) {
+            // セレクトボックスをクリア
+            selectBox.innerHTML = "";
+
+            // 各formDataをオプションに追加
+            formDataList.forEach(data => {
+                const option = document.createElement("option");
+                option.value = data.key;
+                option.textContent = data.name || "(Unnamed)";
+                selectBox.appendChild(option);
+            });
+
+            // 新規作成用オプションを追加
+            const newOption = document.createElement("option");
+            newOption.value = "new";
+            newOption.textContent = "(新規作成)";
+            selectBox.appendChild(newOption);
+        }
+
+        // データを保存する
+        function saveData(playerId) {
+
+            const player1SaveName = document.getElementById(`player1_dataSelect`).value;
+            const player2SaveName = document.getElementById(`player2_dataSelect`).value;
+
+            // 入力値を取得
+            const inputData = makeJsonObjectFromFormData(playerId);
+
+            let selectedName = document.getElementById(`${playerId}_dataSelect`).value;
+            let saveName;
+            if (selectedName === "new") {
+                const max = Object.keys(localStorage).filter(key => key.startsWith("formData"))
+                    .map(item => {
+                        const match = item.match(/^formData(\d+)$/);
+                        return match ? parseInt(match[1], 10) : NaN; // 数値を抽出、失敗時はNaN
+                    })
+                    .filter(num => !isNaN(num)) // NaNを除外
+                    .reduce((max, num) => Math.max(max, num), 0);
+                saveName = `formData${max + 1}`;
+            } else {
+                saveName = selectedName;
+            }
+            // JSON形式でlocalStorageに保存
+            localStorage.setItem(saveName, JSON.stringify(inputData));
+            // 各セレクトボックスを更新
+            refreshSelectBox();
+
+            document.getElementById(`player1_dataSelect`).value = player1SaveName;
+            document.getElementById(`player2_dataSelect`).value = player2SaveName;
+            if (selectedName === "new") {
+                document.getElementById(`${playerId}_dataSelect`).value = saveName;
+            }
+        }
+
+        function makeJsonObjectFromFormData(playerId) {
+            return {
+                name: document.getElementById(`${playerId}_name`).value,
+                hp: parseInt(document.getElementById(`${playerId}_hp`).value),
+                ap: parseInt(document.getElementById(`${playerId}_ap`).value),
+                attack: parseInt(document.getElementById(`${playerId}_attack`).value),
+                subAttack: parseInt(document.getElementById(`${playerId}_subAttack`).value),
+                speed: parseInt(document.getElementById(`${playerId}_speed`).value),
+                critical: parseInt(document.getElementById(`${playerId}_critical`).value),
+                fumble: parseInt(document.getElementById(`${playerId}_fumble`).value),
+                drama: parseInt(document.getElementById(`${playerId}_drama`).value),
+                hit: parseInt(document.getElementById(`${playerId}_hit`).value),
+                evasion: parseInt(document.getElementById(`${playerId}_evasion`).value),
+                defense: parseInt(document.getElementById(`${playerId}_defense`).value),
+                resistance: parseInt(document.getElementById(`${playerId}_resistance`).value),
+                mobility: parseInt(document.getElementById(`${playerId}_mobility`).value),
+                attackRangeChecks: {
+                    0: document.getElementById(`${playerId}_attack_range_check_0`).checked,
+                    1: document.getElementById(`${playerId}_attack_range_check_1`).checked,
+                    2: document.getElementById(`${playerId}_attack_range_check_2`).checked,
+                    3: document.getElementById(`${playerId}_attack_range_check_3`).checked,
+                    4: document.getElementById(`${playerId}_attack_range_check_4`).checked
+                },
+                activeSkills: {
+                    0: '',
+                    1: '',
+                    2: '',
+                    3: '',
+                    4: '',
+                }
+            };
+        }
+
+        // データをロードする
+        function loadData(playerId) {
+            const saveName = document.getElementById(`${playerId}_dataSelect`).value;
+            const savedData = localStorage.getItem(saveName);
+            if (savedData) {
+                const parsedData = JSON.parse(savedData);
+                reflectToFormData(playerId, parsedData);
+            };
+        }
+
+        function reflectToFormData(playerId, parsedData) {
+            document.getElementById(`${playerId}_name`).value = parsedData.name;
+            document.getElementById(`${playerId}_hp`).value = parsedData.hp;
+            document.getElementById(`${playerId}_ap`).value = parsedData.ap;
+            document.getElementById(`${playerId}_attack`).value = parsedData.attack;
+            document.getElementById(`${playerId}_subAttack`).value = parsedData.subAttack;
+            document.getElementById(`${playerId}_speed`).value = parsedData.speed;
+            document.getElementById(`${playerId}_critical`).value = parsedData.critical;
+            document.getElementById(`${playerId}_fumble`).value = parsedData.fumble;
+            document.getElementById(`${playerId}_drama`).value = parsedData.drama;
+            document.getElementById(`${playerId}_hit`).value = parsedData.hit;
+            document.getElementById(`${playerId}_evasion`).value = parsedData.evasion;
+            document.getElementById(`${playerId}_defense`).value = parsedData.defense;
+            document.getElementById(`${playerId}_resistance`).value = parsedData.resistance;
+            document.getElementById(`${playerId}_mobility`).value = parsedData.mobility;
+            document.getElementById(`${playerId}_attack_range_check_0`).checked = parsedData.attackRangeChecks[0];
+            document.getElementById(`${playerId}_attack_range_check_1`).checked = parsedData.attackRangeChecks[1];
+            document.getElementById(`${playerId}_attack_range_check_2`).checked = parsedData.attackRangeChecks[2];
+            document.getElementById(`${playerId}_attack_range_check_3`).checked = parsedData.attackRangeChecks[3];
+            document.getElementById(`${playerId}_attack_range_check_4`).checked = parsedData.attackRangeChecks[4];
+        }
+
+        function deleteSaveData(playerId) {
+
+            let saveName = document.getElementById(`${playerId}_dataSelect`).value;
+            if (saveName === "new") {
+                return;
+            }
+            // JSON形式でlocalStorageに保存
+            localStorage.removeItem(saveName);
+
+            // 各セレクトボックスを更新
+            refreshSelectBox();
+        }
+
+        // データをエクスポートする
+        function exportData(playerId) {
+            const jsonData = JSON.stringify(makeJsonObjectFromFormData(playerId), null, 2);
+            navigator.clipboard.writeText(jsonData).then(() => { }).catch(err => {
+                console.error("データのエクスポートに失敗しました: ", err);
+            });
+        }
+
+        // データをインポートする
+        function importData(playerId) {
+            const jsonData = prompt("インポートするデータをペーストしてください:");
+            if (!jsonData) return;
+
+            try {
+                reflectToFormData(playerId, JSON.parse(jsonData));
+            } catch (error) {
+                alert("インポートに失敗しました。フォーマットを確認してください。");
+                console.error(error);
+            }
         }
     </script>
 </body>
