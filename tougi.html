@@ -557,10 +557,10 @@
                 if (roll <= this.fumble) {
                     attackFumble = true
                 }
-                if (roll >= 100 - target.critical) {
+                if (evasionRoll >= 100 - target.critical) {
                     defenceCritical = true
                 }
-                if (roll <= target.fumble) {
+                if (evasionRoll <= target.fumble) {
                     defenceFumble = true
                 }
 
@@ -595,12 +595,12 @@
                     let damage = 0;
                     let trueDamage = 0;
                     if (finalHitDegree <= 49 && !attackCritical) {
-                        damage = this.mainAttack * (15 + secondRoll / 4) / 100 + this.subAttack;
+                        damage = this.mainAttack * (15 + secondRoll / 4) / 100;
                         judgeHitDegree = HIT_DEGREE.GRAZE_HIT;
                         log(`${this.name}はグレイズヒットで攻撃！`);
                     } else if (finalHitDegree <= 99 || (finalHitDegree <= 49 && attackCritical)) {
                         // 命中判定のクリティカル時はライトヒットを保証
-                        damage = this.mainAttack * (30 + secondRoll / 2) / 100 + this.subAttack;
+                        damage = this.mainAttack * (30 + secondRoll / 2) / 100;
                         judgeHitDegree = HIT_DEGREE.LIGHT_HIT;
                         log(`${this.name}はライトヒットで攻撃！`);
                     } else if (finalHitDegree <= 149) {
