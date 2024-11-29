@@ -987,6 +987,32 @@
             refreshSelectBox();
         });
 
+        // ページを離れる前に実行される処理
+        window.addEventListener('beforeunload', (event) => {
+            // 入力値を取得
+            const player1FormInput = makeJsonObjectFromFormData('player1');
+            const player2FormInput = makeJsonObjectFromFormData('player2');
+            // JSON形式でlocalStorageに保存
+            localStorage.setItem('player1_cache', JSON.stringify(player1FormInput));
+            localStorage.setItem('player2_cache', JSON.stringify(player2FormInput));
+        });
+
+        // 保存されたデータを復元する
+        window.addEventListener('DOMContentLoaded', () => {
+            const player1CacheData = localStorage.getItem('player1_cache');
+            if (player1CacheData) {
+                const parsedData = JSON.parse(player1CacheData);
+                reflectToFormData('player1', parsedData);
+                localStorage.removeItem('player1_cache');
+            };
+            const player2CacheData = localStorage.getItem('player2_cache');
+            if (player2CacheData) {
+                const parsedData = JSON.parse(player2CacheData);
+                reflectToFormData('player2', parsedData);
+                localStorage.removeItem('player2_cache');
+            };
+        });
+
         function refreshSelectBox() {
             const storedKeys = Object.keys(localStorage).filter(key => key.startsWith("formData"));
             let formDataList = [];
