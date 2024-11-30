@@ -131,6 +131,16 @@
             flex-direction: column;
             align-items: center;
         }
+
+        .element_label {
+            font-size: 14px;
+            display: inline-block;
+            width: 8em;
+        }
+
+        .element_level_input {
+            width: 4em;
+        }
     </style>
 </head>
 
@@ -183,6 +193,19 @@
                         required></div>
                 <div><label for="player1_mobility">機動力: </label><input type="number" id="player1_mobility" value="4"
                         required></div>
+                <div><span class="element_label">属性</span></div>
+                <select id="player1_element" name="player1_element">
+                    <option value="火">火</option>
+                    <option value="水">水</option>
+                    <option value="土">土</option>
+                    <option value="風">風</option>
+                    <option value="光">光</option>
+                    <option value="闇">闇</option>
+                    <option value="無">無</option>
+                    <option value="-" selected>-</option>
+                </select>
+                <input type="number" class="element_level_input" id="player1_element_level" value="1" min="1" max="3"
+                    required>
                 <div><span class="range_label">通常攻撃射程：</span></div>
                 <div class="range_container">
                     <div class="range_item">
@@ -254,6 +277,19 @@
                         required></div>
                 <div><label for="player2_mobility">機動力: </label><input type="number" id="player2_mobility" value="4"
                         required></div>
+                <div><span class="element_label">属性</span></div>
+                <select id="player2_element" name="player2_element">
+                    <option value="火">火</option>
+                    <option value="水">水</option>
+                    <option value="土">土</option>
+                    <option value="風">風</option>
+                    <option value="光">光</option>
+                    <option value="闇">闇</option>
+                    <option value="無">無</option>
+                    <option value="-" selected>-</option>
+                </select>
+                <input type="number" class="element_level_input" id="player2_element_level" value="1" min="1" max="3"
+                    required>
                 <div><span class="range_label">通常攻撃射程：</span></div>
                 <div class="range_container">
                     <div class="range_item">
@@ -356,7 +392,7 @@
         };
 
         class Character {
-            constructor(name, hp, ap, mainAttack, subAttack, speed, critical, fumble, drama, hit, evasion, defense, resistance, mobility, compatibleRange) {
+            constructor(name, hp, ap, mainAttack, subAttack, speed, critical, fumble, drama, hit, evasion, defense, resistance, mobility, element, elementLevel, compatibleRange) {
                 this.name = name;
                 this.initialHp = hp;
                 this.hp = hp;
@@ -372,6 +408,10 @@
                 this.defense = defense;
                 this.resistance = resistance;
                 this.mobility = mobility;
+                this.element = element;
+                this.elementLevel = elementLevel;
+                this.compatibleRange = compatibleRange;
+
                 this.alive = true;
                 this.passed = false;
                 this.actionPoints = 0;
@@ -381,12 +421,11 @@
                 this.damageScoreForJudge = 0;
                 this.judgePoints = 0;
                 this.nextAction = null;
-                this.compatibleRange = compatibleRange;
                 this.rangeHitFix;
             }
 
             // ダメージを受けるメソッド
-            takeDamage(damage, trueDamage, judgeHitDegree, defenceFumble) {
+            takeDamage(damage, trueDamage, judgeHitDegree, defenceFumble, element, elementLevel) {
 
                 this.takeDamagePreProcess(judgeHitDegree);
 
@@ -403,7 +442,9 @@
                     log(`${this.name}は状態異常に対する抵抗が発動しました！`);
                 }
 
-                damage = Math.round(damage + trueDamage);
+                const elementFix = this.getElementFix(element, elementLevel);
+
+                damage = Math.round((damage + trueDamage) * elementFix);
 
                 this.hp -= damage;
                 log(`${this.name}は${damage}ダメージを受けました！\n`);
@@ -432,6 +473,82 @@
 
                 // 与えたダメージ量を返却
                 return damage
+            }
+
+            // 属性補正倍率を取得
+            // this.element = ダメージを受ける側の属性
+            // element = ダメージを与える側の属性
+            getElementFix(element, elementLevel) {
+                let percentage = 100;
+                switch (this.element) {
+                    case '火': {
+                        // 弱点となる方
+                        if (element === '水') {
+                            percentage = 100 + elementLevel * 5
+                        }
+                        // 耐性がある方
+                        if (element === '風') {
+                            percentage = 100 - this.elementLevel * 5
+                        }
+                        break;
+                    }
+                    case '水': {
+                        // 弱点となる方
+                        if (element === '土') {
+                            percentage = 100 + elementLevel * 5
+                        }
+                        // 耐性がある方
+                        if (element === '火') {
+                            percentage = 100 - this.elementLevel * 5
+                        }
+                        break;
+                    }
+                    case '土': {
+                        // 弱点となる方
+                        if (element === '風') {
+                            percentage = 100 + elementLevel * 5
+                        }
+                        // 耐性がある方
+                        if (element === '水') {
+                            percentage = 100 - this.elementLevel * 5
+                        }
+                        break;
+                    }
+                    case '風': {
+                        // 弱点となる方
+                        if (element === '火') {
+                            percentage = 100 + elementLevel * 5
+                        }
+                        // 耐性がある方
+                        if (element === '土') {
+                            percentage = 100 - this.elementLevel * 5
+                        }
+                        break;
+                    }
+                    case '光': {
+                        // 弱点となる方
+                        if (element === '闇') {
+                            percentage = 100 + elementLevel * 7
+                        }
+                        break;
+                    }
+                    case '闇': {
+                        // 弱点となる方
+                        if (element === '光') {
+                            percentage = 100 + elementLevel * 7
+                        }
+                        break;
+                    }
+                    case '無': {
+                        // 弱点となる方
+                        if (element === '光') {
+                            percentage = 100 + elementLevel * 3
+                        } else if (element === '闇') {
+                            percentage = 100 + elementLevel * 3
+                        }
+                    }
+                }
+                return percentage / 100;
             }
 
             takeDamagePreProcess(judgeHitDegree) {
@@ -657,7 +774,7 @@
                     }
 
                     // ダメージをターゲットに与える
-                    this.damageScoreForJudge += target.takeDamage(damage, trueDamage, judgeHitDegree, defenceFumble);
+                    this.damageScoreForJudge += target.takeDamage(damage, trueDamage, judgeHitDegree, defenceFumble, this.element, this.elementLevel);
 
                 } else if (hitChance <= finalEvasion) {
                     // 完全回避の場合
@@ -772,6 +889,8 @@
                 parseInt(document.getElementById('player1_defense').value),
                 parseInt(document.getElementById('player1_resistance').value),
                 parseInt(document.getElementById('player1_mobility').value),
+                document.getElementById('player1_element').value,
+                parseInt(document.getElementById('player1_element_level').value),
                 {
                     0: document.getElementById('player1_attack_range_check_0').checked,
                     1: document.getElementById('player1_attack_range_check_1').checked,
@@ -796,6 +915,8 @@
                 parseInt(document.getElementById('player2_defense').value),
                 parseInt(document.getElementById('player2_resistance').value),
                 parseInt(document.getElementById('player2_mobility').value),
+                document.getElementById('player2_element').value,
+                parseInt(document.getElementById('player2_element_level').value),
                 {
                     0: document.getElementById('player2_attack_range_check_0').checked,
                     1: document.getElementById('player2_attack_range_check_1').checked,
@@ -1125,6 +1246,8 @@
                 defense: parseInt(document.getElementById(`${playerId}_defense`).value),
                 resistance: parseInt(document.getElementById(`${playerId}_resistance`).value),
                 mobility: parseInt(document.getElementById(`${playerId}_mobility`).value),
+                element: document.getElementById(`${playerId}_element`).value,
+                elementLevel: parseInt(document.getElementById(`${playerId}_element_level`).value),
                 attackRangeChecks: {
                     0: document.getElementById(`${playerId}_attack_range_check_0`).checked,
                     1: document.getElementById(`${playerId}_attack_range_check_1`).checked,
@@ -1170,6 +1293,8 @@
             document.getElementById(`${playerId}_defense`).value = parsedData.defense;
             document.getElementById(`${playerId}_resistance`).value = parsedData.resistance;
             document.getElementById(`${playerId}_mobility`).value = parsedData.mobility;
+            document.getElementById(`${playerId}_element`).value = parsedData.element;
+            document.getElementById(`${playerId}_element_level`).value = parsedData.elementLevel;
             document.getElementById(`${playerId}_attack_range_check_0`).checked = parsedData.attackRangeChecks[0];
             document.getElementById(`${playerId}_attack_range_check_1`).checked = parsedData.attackRangeChecks[1];
             document.getElementById(`${playerId}_attack_range_check_2`).checked = parsedData.attackRangeChecks[2];
