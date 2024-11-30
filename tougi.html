@@ -34,11 +34,11 @@
         }
 
         button[type="button"] {
-            margin-bottom: 2px;  /* ボタン間の余白を5pxに調整 */
+            margin-bottom: 3px;  /* ボタン間の余白を3pxに調整 */
         }
 
         button[type="button"]:first-of-type {
-            margin-top: 2px;  /* 最初のボタン（セーブボタン）の上に余白を追加 */
+            margin-top: 3px;  /* 最初のボタン（セーブボタン）の上に余白を追加 */
         }
 
         #container {
@@ -705,9 +705,21 @@
                 }
 
                 // ③ ログ出力: 命中ダイスと命中値、回避判定ダイスと回避値を表示
-                log(``);
-                log(`${this.name}が攻撃！ 命中判定: ${hitChance} (命中ダイス: ${roll}, 命中: ${this.hit})`);
-                log(`${target.name}の回避判定: ${finalEvasion} (回避ダイス: ${evasionRoll}, 回避: ${target.evasion})`);
+                if (roll <= this.fumble) {
+                    log(`\n${this.name}が攻撃！ 命中判定:ファンブル!! (命中ダイス: ${roll}, 命中: ${this.hit})`);
+                } else if (roll >= 100 - this.critical) {
+                    log(`\n${this.name}が攻撃！ 命中判定:クリティカル!!(${hitChance}) (命中ダイス: ${roll}, 命中: ${this.hit})`);
+                } else {
+                    log(`\n${this.name}が攻撃！ 命中判定: ${hitChance} (命中ダイス: ${roll}, 命中: ${this.hit})`);
+                }
+                
+                if (evasionRoll <= target.fumble) {
+                    log(`${target.name}の回避判定:ファンブル!! (回避ダイス: ${evasionRoll}, 回避: ${target.evasion})`);
+                } else if (evasionRoll >= 100 - target.critical) {
+                    log(`${target.name}の回避判定:クリティカル!! (回避ダイス: ${evasionRoll}, 回避: ${target.evasion})`);
+                } else {
+                    log(`${target.name}の回避判定: ${finalEvasion} (回避ダイス: ${evasionRoll}, 回避: ${target.evasion})`);
+                }
 
                 // ④ 命中判定と回避判定を比較
                 if (defenceCritical) {
@@ -715,8 +727,7 @@
                     log(`${target.name}はクリティカルで完全回避しました！`);
                 } else if (attackFumble) {
                     // 自動失敗の場合
-                    log(`${this.name}の攻撃は自動失敗しました。`);
-                    log(``);
+                    log(`${this.name}の攻撃は失敗しました。\n`);
                 } else if (hitChance > finalEvasion) {
                     log(`${target.name}は回避に失敗し、攻撃が命中しました！`);
 
@@ -784,8 +795,7 @@
 
                 } else if (hitChance <= finalEvasion) {
                     // 完全回避の場合
-                    log(`${target.name}は完全回避しました！`);
-                    log(``);
+                    log(`${target.name}は完全回避しました！\n`);
                 }
                 this.actionPoints -= consumeActionPoints; // 攻撃に必要な行動力を消費
 
