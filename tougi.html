@@ -705,6 +705,7 @@
                 }
 
                 // ③ ログ出力: 命中ダイスと命中値、回避判定ダイスと回避値を表示
+                log(``);
                 log(`${this.name}が攻撃！ 命中判定: ${hitChance} (命中ダイス: ${roll}, 命中: ${this.hit})`);
                 log(`${target.name}の回避判定: ${finalEvasion} (回避ダイス: ${evasionRoll}, 回避: ${target.evasion})`);
 
@@ -831,7 +832,7 @@
 
             halveProcess() {
                 this.actionPoints = Math.floor(this.actionPoints / 2); // 行動力半減
-                log(`${this.name}の残り行動力: ${this.actionPoints}\n`);
+                log(`${this.name}の残り行動力: ${this.actionPoints}`);
             }
 
             decideAction(targetPlayer) {
