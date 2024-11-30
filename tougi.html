@@ -101,24 +101,24 @@
             margin-right: 8px;
         }
 
-        .range-label {
+        .range_label {
             font-size: 14px;
             display: inline-block;
             width: 8em;
         }
 
-        .range-container label {
+        .range_container label {
             display: flex;
             align-items: center;
             padding: 5px 5px 0px 5px;
             width: 1em;
         }
 
-        .range-container input {
+        .range_container input {
             width: 1em;
         }
 
-        .range-container {
+        .range_container {
             display: flex;
             justify-content: left;
             align-items: center;
@@ -126,10 +126,20 @@
             height: 3em;
         }
 
-        .range-item {
+        .range_item {
             display: flex;
             flex-direction: column;
             align-items: center;
+        }
+
+        .element_label {
+            font-size: 14px;
+            display: inline-block;
+            width: 8em;
+        }
+
+        .element_level_input {
+            width: 4em;
         }
     </style>
 </head>
@@ -142,6 +152,20 @@
         <div class="player_form">
             <h2>プレイヤー1</h2>
             <form id="player1_form">
+                <div>
+                    <select id="player1_dataSelect">
+                        <!-- ここにセーブデータが動的に追加される -->
+                    </select>
+                </div>
+                <div>
+                    <button type="button" onclick="saveData('player1')">セーブ</button>
+                    <button type="button" onclick="loadData('player1')">ロード</button>
+                    <button type="button" onclick="deleteSaveData('player1')">セーブ削除</button>
+                </div>
+                <div>
+                    <button type="button" onclick="exportData('player1')">エクスポート</button>
+                    <button type="button" onclick="importData('player1')">インポート</button>
+                </div>
                 <div><label for="player1_name">名前: </label><input type="text" id="player1_name" value="プレイヤー1" required>
                 </div>
                 <div><label for="player1_hp">HP: </label><input type="number" id="player1_hp" value="100" required>
@@ -169,27 +193,40 @@
                         required></div>
                 <div><label for="player1_mobility">機動力: </label><input type="number" id="player1_mobility" value="4"
                         required></div>
-                <div><span class="range-label">通常攻撃射程：</span></div>
-                <div class="range-container">
-                    <div class="range-item">
+                <div><span class="element_label">属性</span></div>
+                <select id="player1_element" name="player1_element">
+                    <option value="火">火</option>
+                    <option value="水">水</option>
+                    <option value="土">土</option>
+                    <option value="風">風</option>
+                    <option value="光">光</option>
+                    <option value="闇">闇</option>
+                    <option value="無">無</option>
+                    <option value="-" selected>-</option>
+                </select>
+                <input type="number" class="element_level_input" id="player1_element_level" value="1" min="1" max="3"
+                    required>
+                <div><span class="range_label">通常攻撃射程：</span></div>
+                <div class="range_container">
+                    <div class="range_item">
                         <label for="close">至</label>
-                        <input type="checkbox" id="player1_attack_range_check_0" name="attackRange" checked>
+                        <input type="checkbox" id="player1_attack_range_check_0" name="player1_attackRange" checked>
                     </div>
-                    <div class="range-item">
+                    <div class="range_item">
                         <label for="near">近</label>
-                        <input type="checkbox" id="player1_attack_range_check_1" name="attackRange">
+                        <input type="checkbox" id="player1_attack_range_check_1" name="player1_attackRange">
                     </div>
-                    <div class="range-item">
+                    <div class="range_item">
                         <label for="middle">中</label>
-                        <input type="checkbox" id="player1_attack_range_check_2" name="attackRange">
+                        <input type="checkbox" id="player1_attack_range_check_2" name="player1_attackRange">
                     </div>
-                    <div class="range-item">
+                    <div class="range_item">
                         <label for="far">遠</label>
-                        <input type="checkbox" id="player1_attack_range_check_3" name="attackRange" checked>
+                        <input type="checkbox" id="player1_attack_range_check_3" name="player1_attackRange" checked>
                     </div>
-                    <div class="range-item">
+                    <div class="range_item">
                         <label for="ultra">超</label>
-                        <input type="checkbox" id="player1_attack_range_check_4" name="attackRange" value="middle">
+                        <input type="checkbox" id="player1_attack_range_check_4" name="player1_attackRange">
                     </div>
                 </div>
             </form>
@@ -199,6 +236,20 @@
         <div class="player_form">
             <h2>プレイヤー2</h2>
             <form id="player2_form">
+                <div>
+                    <select id="player2_dataSelect">
+                        　<!-- ここにセーブデータが動的に追加される -->
+                    </select>
+                </div>
+                <div>
+                    <button type="button" onclick="saveData('player2')">セーブ</button>
+                    <button type="button" onclick="loadData('player2')">ロード</button>
+                    <button type="button" onclick="deleteSaveData('player2')">セーブ削除</button>
+                </div>
+                <div>
+                    <button type="button" onclick="exportData('player2')">エクスポート</button>
+                    <button type="button" onclick="importData('player2')">インポート</button>
+                </div>
                 <div><label for="player2_name">名前: </label><input type="text" id="player2_name" value="プレイヤー2" required>
                 </div>
                 <div><label for="player2_hp">HP: </label><input type="number" id="player2_hp" value="100" required>
@@ -226,27 +277,40 @@
                         required></div>
                 <div><label for="player2_mobility">機動力: </label><input type="number" id="player2_mobility" value="4"
                         required></div>
-                <div><span class="range-label">通常攻撃射程：</span></div>
-                <div class="range-container">
-                    <div class="range-item">
+                <div><span class="element_label">属性</span></div>
+                <select id="player2_element" name="player2_element">
+                    <option value="火">火</option>
+                    <option value="水">水</option>
+                    <option value="土">土</option>
+                    <option value="風">風</option>
+                    <option value="光">光</option>
+                    <option value="闇">闇</option>
+                    <option value="無">無</option>
+                    <option value="-" selected>-</option>
+                </select>
+                <input type="number" class="element_level_input" id="player2_element_level" value="1" min="1" max="3"
+                    required>
+                <div><span class="range_label">通常攻撃射程：</span></div>
+                <div class="range_container">
+                    <div class="range_item">
                         <label for="close">至</label>
-                        <input type="checkbox" id="player2_attack_range_check_0" name="attackRange" checked>
+                        <input type="checkbox" id="player2_attack_range_check_0" name="player2_attackRange" checked>
                     </div>
-                    <div class="range-item">
+                    <div class="range_item">
                         <label for="near">近</label>
-                        <input type="checkbox" id="player2_attack_range_check_1" name="attackRange">
+                        <input type="checkbox" id="player2_attack_range_check_1" name="player2_attackRange">
                     </div>
-                    <div class="range-item">
+                    <div class="range_item">
                         <label for="middle">中</label>
-                        <input type="checkbox" id="player2_attack_range_check_2" name="attackRange">
+                        <input type="checkbox" id="player2_attack_range_check_2" name="player2_attackRange">
                     </div>
-                    <div class="range-item">
+                    <div class="range_item">
                         <label for="far">遠</label>
-                        <input type="checkbox" id="player2_attack_range_check_3" name="attackRange" checked>
+                        <input type="checkbox" id="player2_attack_range_check_3" name="player2_attackRange" checked>
                     </div>
-                    <div class="range-item">
+                    <div class="range_item">
                         <label for="ultra">超</label>
-                        <input type="checkbox" id="player2_attack_range_check_4" name="attackRange">
+                        <input type="checkbox" id="player2_attack_range_check_4" name="player2_attackRange">
                     </div>
                 </div>
             </form>
@@ -258,8 +322,7 @@
         </select></div>
 
     <button onclick="startBattle()">バトル開始</button>
-    <!-- ログをクリアするボタン -->
-    <button id="clear_log_button">ログをクリア</button>
+    <button onclick="clearBattleLog()">ログをクリア</button>
     <div id="checkbox_container">
         <label for="result_check">
             <input type="checkbox" id="result_check" name="result_check" checked>
@@ -273,15 +336,6 @@
     <h2>バトルログ</h2>
     <div id="battle_log"></div>
     <script>
-        // ログをクリアする関数
-        function clearBattleLog() {
-            const logArea = document.getElementById('battle_log');
-            logArea.innerHTML = ''; // ログ内容を空にする
-        }
-
-        // ログをクリアするボタンのイベントリスナーを追加
-        document.getElementById('clear_log_button').addEventListener('click', clearBattleLog);
-
         let rangeMeter;
 
         // レンジに対応する距離範囲を定義
@@ -338,10 +392,11 @@
         };
 
         class Character {
-            constructor(name, hp, mainAttack, subAttack, speed, critical, fumble, drama, hit, evasion, defense, resistance, mobility, compatibleRange) {
+            constructor(name, hp, ap, mainAttack, subAttack, speed, critical, fumble, drama, hit, evasion, defense, resistance, mobility, element, elementLevel, compatibleRange) {
                 this.name = name;
                 this.initialHp = hp;
                 this.hp = hp;
+                this.ap = ap;
                 this.mainAttack = mainAttack;
                 this.subAttack = subAttack;
                 this.speed = speed;
@@ -353,6 +408,10 @@
                 this.defense = defense;
                 this.resistance = resistance;
                 this.mobility = mobility;
+                this.element = element;
+                this.elementLevel = elementLevel;
+                this.compatibleRange = compatibleRange;
+
                 this.alive = true;
                 this.passed = false;
                 this.actionPoints = 0;
@@ -362,12 +421,11 @@
                 this.damageScoreForJudge = 0;
                 this.judgePoints = 0;
                 this.nextAction = null;
-                this.compatibleRange = compatibleRange;
                 this.rangeHitFix;
             }
 
             // ダメージを受けるメソッド
-            takeDamage(damage, trueDamage, judgeHitDegree, defenceFumble) {
+            takeDamage(damage, trueDamage, judgeHitDegree, defenceFumble, element, elementLevel) {
 
                 this.takeDamagePreProcess(judgeHitDegree);
 
@@ -384,7 +442,9 @@
                     log(`${this.name}は状態異常に対する抵抗が発動しました！`);
                 }
 
-                damage = Math.round(damage + trueDamage);
+                const elementFix = this.getElementFix(element, elementLevel);
+
+                damage = Math.round((damage + trueDamage) * elementFix);
 
                 this.hp -= damage;
                 log(`${this.name}は${damage}ダメージを受けました！\n`);
@@ -413,6 +473,82 @@
 
                 // 与えたダメージ量を返却
                 return damage
+            }
+
+            // 属性補正倍率を取得
+            // this.element = ダメージを受ける側の属性
+            // element = ダメージを与える側の属性
+            getElementFix(element, elementLevel) {
+                let percentage = 100;
+                switch (this.element) {
+                    case '火': {
+                        // 弱点となる方
+                        if (element === '水') {
+                            percentage = 100 + elementLevel * 5
+                        }
+                        // 耐性がある方
+                        if (element === '風') {
+                            percentage = 100 - this.elementLevel * 5
+                        }
+                        break;
+                    }
+                    case '水': {
+                        // 弱点となる方
+                        if (element === '土') {
+                            percentage = 100 + elementLevel * 5
+                        }
+                        // 耐性がある方
+                        if (element === '火') {
+                            percentage = 100 - this.elementLevel * 5
+                        }
+                        break;
+                    }
+                    case '土': {
+                        // 弱点となる方
+                        if (element === '風') {
+                            percentage = 100 + elementLevel * 5
+                        }
+                        // 耐性がある方
+                        if (element === '水') {
+                            percentage = 100 - this.elementLevel * 5
+                        }
+                        break;
+                    }
+                    case '風': {
+                        // 弱点となる方
+                        if (element === '火') {
+                            percentage = 100 + elementLevel * 5
+                        }
+                        // 耐性がある方
+                        if (element === '土') {
+                            percentage = 100 - this.elementLevel * 5
+                        }
+                        break;
+                    }
+                    case '光': {
+                        // 弱点となる方
+                        if (element === '闇') {
+                            percentage = 100 + elementLevel * 7
+                        }
+                        break;
+                    }
+                    case '闇': {
+                        // 弱点となる方
+                        if (element === '光') {
+                            percentage = 100 + elementLevel * 7
+                        }
+                        break;
+                    }
+                    case '無': {
+                        // 弱点となる方
+                        if (element === '光') {
+                            percentage = 100 + elementLevel * 3
+                        } else if (element === '闇') {
+                            percentage = 100 + elementLevel * 3
+                        }
+                    }
+                }
+                return percentage / 100;
             }
 
             takeDamagePreProcess(judgeHitDegree) {
@@ -638,7 +774,7 @@
                     }
 
                     // ダメージをターゲットに与える
-                    this.damageScoreForJudge += target.takeDamage(damage, trueDamage, judgeHitDegree, defenceFumble);
+                    this.damageScoreForJudge += target.takeDamage(damage, trueDamage, judgeHitDegree, defenceFumble, this.element, this.elementLevel);
 
                 } else if (hitChance <= finalEvasion) {
                     // 完全回避の場合
@@ -741,6 +877,7 @@
             player1 = new Character(
                 document.getElementById('player1_name').value,
                 parseInt(document.getElementById('player1_hp').value),
+                parseInt(document.getElementById('player1_ap').value),
                 parseInt(document.getElementById('player1_attack').value),
                 parseInt(document.getElementById('player1_subAttack').value),
                 parseInt(document.getElementById('player1_speed').value),
@@ -752,6 +889,8 @@
                 parseInt(document.getElementById('player1_defense').value),
                 parseInt(document.getElementById('player1_resistance').value),
                 parseInt(document.getElementById('player1_mobility').value),
+                document.getElementById('player1_element').value,
+                parseInt(document.getElementById('player1_element_level').value),
                 {
                     0: document.getElementById('player1_attack_range_check_0').checked,
                     1: document.getElementById('player1_attack_range_check_1').checked,
@@ -764,6 +903,7 @@
             player2 = new Character(
                 document.getElementById('player2_name').value,
                 parseInt(document.getElementById('player2_hp').value),
+                parseInt(document.getElementById('player2_ap').value),
                 parseInt(document.getElementById('player2_attack').value),
                 parseInt(document.getElementById('player2_subAttack').value),
                 parseInt(document.getElementById('player2_speed').value),
@@ -775,6 +915,8 @@
                 parseInt(document.getElementById('player2_defense').value),
                 parseInt(document.getElementById('player2_resistance').value),
                 parseInt(document.getElementById('player2_mobility').value),
+                document.getElementById('player2_element').value,
+                parseInt(document.getElementById('player2_element_level').value),
                 {
                     0: document.getElementById('player2_attack_range_check_0').checked,
                     1: document.getElementById('player2_attack_range_check_1').checked,
@@ -948,6 +1090,249 @@
                 result.innerHTML = `${player2.name}の勝利！`;
             } else {
                 result.innerHTML = `${player1.name}の勝利！`;
+            }
+        }
+    </script>
+    <script>
+        // ログをクリアする関数
+        function clearBattleLog() {
+            const logArea = document.getElementById('battle_log');
+            logArea.innerHTML = ''; // ログ内容を空にする
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            addDefaultCheckEvent('player1');
+            addDefaultCheckEvent('player2');
+        });
+
+        // どのレンジにもチェックされていない時、至レンジにチェックを入れる
+        function addDefaultCheckEvent(playerId) {
+            // 全てのチェックボックス要素を取得
+            const checkboxes = document.querySelectorAll(`input[name="${playerId}_attackRange"]`);
+            const defaultCheckbox = document.getElementById(`${playerId}_attack_range_check_0`);
+
+            // チェックボックスの変更イベントを監視
+            checkboxes.forEach((checkbox) => {
+                checkbox.addEventListener('change', () => {
+                    // すべてのチェック状態を取得
+                    const anyChecked = Array.from(checkboxes).some(checkbox => checkbox.checked);
+
+                    // すべてのチェックが外れている場合、デフォルトをチェック
+                    if (!anyChecked) {
+                        defaultCheckbox.checked = true;
+                    }
+                });
+            });
+        }
+    </script>
+    <script>
+
+        // 初期化: localStorageの"formData"に関連するすべてのデータを取得
+        window.addEventListener("load", () => {
+            refreshSelectBox();
+        });
+
+        // ページを離れる前に実行される処理
+        window.addEventListener('beforeunload', (event) => {
+            // 入力値を取得
+            const player1FormInput = makeJsonObjectFromFormData('player1');
+            const player2FormInput = makeJsonObjectFromFormData('player2');
+            // JSON形式でlocalStorageに保存
+            localStorage.setItem('player1_cache', JSON.stringify(player1FormInput));
+            localStorage.setItem('player2_cache', JSON.stringify(player2FormInput));
+        });
+
+        // 保存されたデータを復元する
+        window.addEventListener('DOMContentLoaded', () => {
+            const player1CacheData = localStorage.getItem('player1_cache');
+            if (player1CacheData) {
+                const parsedData = JSON.parse(player1CacheData);
+                reflectToFormData('player1', parsedData);
+                localStorage.removeItem('player1_cache');
+            };
+            const player2CacheData = localStorage.getItem('player2_cache');
+            if (player2CacheData) {
+                const parsedData = JSON.parse(player2CacheData);
+                reflectToFormData('player2', parsedData);
+                localStorage.removeItem('player2_cache');
+            };
+        });
+
+        function refreshSelectBox() {
+            const storedKeys = Object.keys(localStorage).filter(key => key.startsWith("formData"));
+            let formDataList = [];
+
+            // "formData"とつくデータを取得しリスト化
+            storedKeys.forEach(key => {
+                const data = JSON.parse(localStorage.getItem(key));
+                formDataList.push({ key, ...data });
+            });
+
+            // セレクトボックスにデータを追加
+            populateSelectBox(document.getElementById("player1_dataSelect"), formDataList);
+            populateSelectBox(document.getElementById("player2_dataSelect"), formDataList);
+        }
+
+        // セレクトボックスのデータを作成
+        function populateSelectBox(selectBox, formDataList) {
+            // セレクトボックスをクリア
+            selectBox.innerHTML = "<option selected>(選択)</option>";
+
+            // 各formDataをオプションに追加
+            formDataList.forEach(data => {
+                const option = document.createElement("option");
+                option.value = data.key;
+                option.textContent = data.name || "(名前なし)";
+                selectBox.appendChild(option);
+            });
+
+            // 新規作成用オプションを追加
+            const newOption = document.createElement("option");
+            newOption.value = "new";
+            newOption.textContent = "(新規作成)";
+            selectBox.appendChild(newOption);
+        }
+
+        // データを保存する
+        function saveData(playerId) {
+
+            const player1SaveName = document.getElementById(`player1_dataSelect`).value;
+            const player2SaveName = document.getElementById(`player2_dataSelect`).value;
+
+            // 入力値を取得
+            const inputData = makeJsonObjectFromFormData(playerId);
+
+            let selectedName = document.getElementById(`${playerId}_dataSelect`).value;
+            let saveName;
+            if (selectedName === "(選択)") {
+                return;
+            } else if (selectedName === "new") {
+                const max = Object.keys(localStorage).filter(key => key.startsWith("formData"))
+                    .map(item => {
+                        const match = item.match(/^formData(\d+)$/);
+                        return match ? parseInt(match[1], 10) : NaN; // 数値を抽出、失敗時はNaN
+                    })
+                    .filter(num => !isNaN(num)) // NaNを除外
+                    .reduce((max, num) => Math.max(max, num), 0);
+                saveName = `formData${max + 1}`;
+            } else {
+                saveName = selectedName;
+            }
+            // JSON形式でlocalStorageに保存
+            localStorage.setItem(saveName, JSON.stringify(inputData));
+            // 各セレクトボックスを更新
+            refreshSelectBox();
+
+            document.getElementById(`player1_dataSelect`).value = player1SaveName;
+            document.getElementById(`player2_dataSelect`).value = player2SaveName;
+            if (selectedName === "new") {
+                document.getElementById(`${playerId}_dataSelect`).value = saveName;
+            }
+        }
+
+        function makeJsonObjectFromFormData(playerId) {
+            return {
+                name: document.getElementById(`${playerId}_name`).value,
+                hp: parseInt(document.getElementById(`${playerId}_hp`).value),
+                ap: parseInt(document.getElementById(`${playerId}_ap`).value),
+                attack: parseInt(document.getElementById(`${playerId}_attack`).value),
+                subAttack: parseInt(document.getElementById(`${playerId}_subAttack`).value),
+                speed: parseInt(document.getElementById(`${playerId}_speed`).value),
+                critical: parseInt(document.getElementById(`${playerId}_critical`).value),
+                fumble: parseInt(document.getElementById(`${playerId}_fumble`).value),
+                drama: parseInt(document.getElementById(`${playerId}_drama`).value),
+                hit: parseInt(document.getElementById(`${playerId}_hit`).value),
+                evasion: parseInt(document.getElementById(`${playerId}_evasion`).value),
+                defense: parseInt(document.getElementById(`${playerId}_defense`).value),
+                resistance: parseInt(document.getElementById(`${playerId}_resistance`).value),
+                mobility: parseInt(document.getElementById(`${playerId}_mobility`).value),
+                element: document.getElementById(`${playerId}_element`).value,
+                elementLevel: parseInt(document.getElementById(`${playerId}_element_level`).value),
+                attackRangeChecks: {
+                    0: document.getElementById(`${playerId}_attack_range_check_0`).checked,
+                    1: document.getElementById(`${playerId}_attack_range_check_1`).checked,
+                    2: document.getElementById(`${playerId}_attack_range_check_2`).checked,
+                    3: document.getElementById(`${playerId}_attack_range_check_3`).checked,
+                    4: document.getElementById(`${playerId}_attack_range_check_4`).checked
+                },
+                activeSkills: {
+                    0: '',
+                    1: '',
+                    2: '',
+                    3: '',
+                    4: '',
+                }
+            };
+        }
+
+        // データをロードする
+        function loadData(playerId) {
+            const saveName = document.getElementById(`${playerId}_dataSelect`).value;
+            if (saveName === "(選択)") {
+                return;
+            }
+            const savedData = localStorage.getItem(saveName);
+            if (savedData) {
+                const parsedData = JSON.parse(savedData);
+                reflectToFormData(playerId, parsedData);
+            };
+        }
+
+        function reflectToFormData(playerId, parsedData) {
+            document.getElementById(`${playerId}_name`).value = parsedData.name;
+            document.getElementById(`${playerId}_hp`).value = parsedData.hp;
+            document.getElementById(`${playerId}_ap`).value = parsedData.ap;
+            document.getElementById(`${playerId}_attack`).value = parsedData.attack;
+            document.getElementById(`${playerId}_subAttack`).value = parsedData.subAttack;
+            document.getElementById(`${playerId}_speed`).value = parsedData.speed;
+            document.getElementById(`${playerId}_critical`).value = parsedData.critical;
+            document.getElementById(`${playerId}_fumble`).value = parsedData.fumble;
+            document.getElementById(`${playerId}_drama`).value = parsedData.drama;
+            document.getElementById(`${playerId}_hit`).value = parsedData.hit;
+            document.getElementById(`${playerId}_evasion`).value = parsedData.evasion;
+            document.getElementById(`${playerId}_defense`).value = parsedData.defense;
+            document.getElementById(`${playerId}_resistance`).value = parsedData.resistance;
+            document.getElementById(`${playerId}_mobility`).value = parsedData.mobility;
+            document.getElementById(`${playerId}_element`).value = parsedData.element;
+            document.getElementById(`${playerId}_element_level`).value = parsedData.elementLevel;
+            document.getElementById(`${playerId}_attack_range_check_0`).checked = parsedData.attackRangeChecks[0];
+            document.getElementById(`${playerId}_attack_range_check_1`).checked = parsedData.attackRangeChecks[1];
+            document.getElementById(`${playerId}_attack_range_check_2`).checked = parsedData.attackRangeChecks[2];
+            document.getElementById(`${playerId}_attack_range_check_3`).checked = parsedData.attackRangeChecks[3];
+            document.getElementById(`${playerId}_attack_range_check_4`).checked = parsedData.attackRangeChecks[4];
+        }
+
+        function deleteSaveData(playerId) {
+
+            let saveName = document.getElementById(`${playerId}_dataSelect`).value;
+            if (saveName === "new") {
+                return;
+            }
+            // JSON形式でlocalStorageに保存
+            localStorage.removeItem(saveName);
+
+            // 各セレクトボックスを更新
+            refreshSelectBox();
+        }
+
+        // データをエクスポートする
+        function exportData(playerId) {
+            const jsonData = JSON.stringify(makeJsonObjectFromFormData(playerId), null, 2);
+            navigator.clipboard.writeText(jsonData).then(() => { }).catch(err => {
+                console.error("データのエクスポートに失敗しました: ", err);
+            });
+        }
+
+        // データをインポートする
+        function importData(playerId) {
+            const jsonData = prompt("インポートするデータをペーストしてください:");
+            if (!jsonData) return;
+
+            try {
+                reflectToFormData(playerId, JSON.parse(jsonData));
+            } catch (error) {
+                alert("インポートに失敗しました。フォーマットを確認してください。");
+                console.error(error);
             }
         }
     </script>
