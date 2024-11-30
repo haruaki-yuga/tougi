@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html lang="ja">
 
 <head>
@@ -714,6 +715,7 @@
                 } else if (attackFumble) {
                     // 自動失敗の場合
                     log(`${this.name}の攻撃は自動失敗しました。`);
+                    log(``);
                 } else if (hitChance > finalEvasion) {
                     log(`${target.name}は回避に失敗し、攻撃が命中しました！`);
 
@@ -782,6 +784,7 @@
                 } else if (hitChance <= finalEvasion) {
                     // 完全回避の場合
                     log(`${target.name}は完全回避しました！`);
+                    log(``);
                 }
                 this.actionPoints -= consumeActionPoints; // 攻撃に必要な行動力を消費
 
