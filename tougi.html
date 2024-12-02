@@ -450,6 +450,7 @@
 
             // 毒の自然回復処理
             handlePoison() {
+
                 if (this.badStatus.poison.remainingTurns > 0) {
                     // 毒ダメージ: 毎ターンHPの1%を失うが、最小50、最大200まで
                     let damage = Math.max(50, Math.min(200, Math.floor(this.hp * 0.01)));
@@ -457,17 +458,35 @@
                     this.hp = Math.max(0, this.hp); // HPが0以下にならないように
                     this.badStatus.poison.remainingTurns--;
                     log(`${this.name}は毒の影響を受けている！ 毒ダメージ: ${damage} 残りターン: ${this.badStatus.poison.remainingTurns}`);
+                
                 }
                 // 毒が残りターン0になると回復する
                 if (this.badStatus.poison.remainingTurns === 0) {
                 this.badStatus.poison.recovery = true;
                 log(`${this.name}の毒が治癒しました！`);
                 }
+                if (this.hp <= 0) {
+                    let dramaChance = Math.random() * 100;
+                    // 数字が上回った=以上と解釈。>の可能性もあり
+                    if (dramaChance >= (100 - this.drama) && dramaChance > this.fumble) {
+                        this.hp = 1;
+                        if (this.dramaEnhanceCount < 10) {
+                            this.critical += 1;
+                            this.speed += 20;
+                            this.dramaEnhanceCount += 1;
+                            log(`${this.name}はドラマ補正でHP1で踏みとどまり、クリティカルと速度が増加しました！`);
+                        } else {
+                            log(`${this.name}はドラマ補正でHP1で踏みとどまりました！`);
+                        }
+                    } else {
+                        this.hp = 0;
+                        this.alive = false;
+                        log(`${this.name}は倒れました！`);
+                        
+                    }
+                }
             }
-            // HPが0以下かどうかを判定するメソッド
-            isAlive() {
-                return this.hp > 0;
-            }
+            
 
             // ダメージを受けるメソッド
             takeDamage(damage, trueDamage, judgeHitDegree, defenceFumble, element, elementLevel) {
@@ -933,7 +952,7 @@
 
         function applyPoisonManually(character) {
         // 毒の状態を直接設定
-        character.badStatus.poison.remainingTurns = 3;  // 例えば、毒を3ターンに設定
+        character.badStatus.poison.remainingTurns = 4;  // 例えば、毒を4ターンに設定
         character.badStatus.poison.recovery = false;  // 毒の自然回復を初期化
         log(`${character.name}に毒が付与されました！`);
         }
@@ -1007,12 +1026,10 @@
                 log(`\nターン ${turn}:`);
                 player1.passed = false;
                 player2.passed = false;
-
-                player1.processBadStatus();
-                player2.processBadStatus();
-
-                applyPoisonManually(player1);
-
+                
+                if(turn == 1){
+                    applyPoisonManually(player1);
+                }
                 // BS判定フェーズ
                 // ダメージバッドステータスのダメージ処理
                 // →バッドステータスの自然回復判定
@@ -1021,6 +1038,12 @@
                 // 速度決定フェーズ
                 player1.rollInitiative();
                 player2.rollInitiative();
+
+                player1.processBadStatus();
+                player2.processBadStatus();
+                if (!player1.isAlive() || !player2.isAlive()) {
+                        break turnLoop;
+                    }
 
                 // 行動フェーズ
                 let actPlayer, targetPlayer;
