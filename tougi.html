@@ -418,7 +418,8 @@
 
                 this.badStatus = {
                     curse: { remainingTurns: 0, recovery: false }, // 呪いの状態
-                    poison: { remainingTurns: 0, recovery: false }, // 毒の状態
+                    poisonA: { remainingTurns: 0, recovery: false }, // 毒の状態
+                    poisonB: { remainingTurns: 0, recovery: false }, // 猛毒の状態
                     // 他のBS（例えば睡眠など）もここに追加可能
                 };
 
@@ -440,31 +441,45 @@
                 if (this.badStatus.curse.remainingTurns > 0) {
                     this.handleCurse();
                 } else {
-                    // 呪い以外のBSの回復処理
-                    if (this.badStatus.poison.remainingTurns > 0) {
-                        this.handlePoison();
+                    // 呪い以外のBSを一元管理
+                    if (Object.values(this.badStatus).some(status => status.remainingTurns > 0)) {
+                        this.allbas();
                     }
-                    // 他のBSの処理をここに追加
                 }
             }
 
-            // 毒の自然回復処理
-            handlePoison() {
+            // 呪い以外の自然回復処理
+            allbas() {
 
-                if (this.badStatus.poison.remainingTurns > 0) {
+                if (this.badStatus.poisonA.remainingTurns > 0) {
                     // 毒ダメージ: 毎ターンHPの1%を失うが、最小50、最大200まで
                     let damage = Math.max(50, Math.min(200, Math.floor(this.hp * 0.01)));
                     this.hp -= damage;
                     this.hp = Math.max(0, this.hp); // HPが0以下にならないように
-                    this.badStatus.poison.remainingTurns--;
-                    log(`${this.name}は毒の影響を受けている！ 毒ダメージ: ${damage} 残りターン: ${this.badStatus.poison.remainingTurns}`);
+                    this.badStatus.poisonA.remainingTurns--;
+                    log(`${this.name}は毒により${damage}ダメージを受けた！（残りターン: ${this.badStatus.poisonA.remainingTurns}）`);
+
+                    // 毒が残りターン0になると回復する
+                    if (this.badStatus.poisonA.remainingTurns === 0) {
+                        this.badStatus.poisonA.recovery = true;
+                        log(`${this.name}の毒が治癒しました！`);
+                    }
+                }
+                if (this.badStatus.poisonB.remainingTurns > 0) {
+                    // 猛毒ダメージ: 毎ターンHPの2%を失うが、最小100、最大400まで
+                    let damage = Math.max(100, Math.min(400, Math.floor(this.hp * 0.02)));
+                    this.hp -= damage;
+                    this.hp = Math.max(0, this.hp); // HPが0以下にならないように
+                    this.badStatus.poisonB.remainingTurns--;
+                    log(`${this.name}は猛毒により${damage}ダメージを受けた！（残りターン: ${this.badStatus.poisonB.remainingTurns}）`);
+
+                    // 猛毒が残りターン0になると回復する
+                    if (this.badStatus.poisonB.remainingTurns === 0) {
+                        this.badStatus.poisonB.recovery = true;
+                        log(`${this.name}の猛毒が治癒しました！`);
+                    }
+                }
                 
-                }
-                // 毒が残りターン0になると回復する
-                if (this.badStatus.poison.remainingTurns === 0) {
-                this.badStatus.poison.recovery = true;
-                log(`${this.name}の毒が治癒しました！`);
-                }
                 if (this.hp <= 0) {
                     let dramaChance = Math.random() * 100;
                     // 数字が上回った=以上と解釈。>の可能性もあり
@@ -952,9 +967,16 @@
 
         function applyPoisonManually(character) {
         // 毒の状態を直接設定
-        character.badStatus.poison.remainingTurns = 4;  // 例えば、毒を4ターンに設定
-        character.badStatus.poison.recovery = false;  // 毒の自然回復を初期化
+        character.badStatus.poisonA.remainingTurns = 4;  // 例えば、毒を4ターンに設定
+        character.badStatus.poisonA.recovery = false;  // 毒の自然回復を初期化
         log(`${character.name}に毒が付与されました！`);
+        }
+        
+        function applyPoison2Manually(character) {
+        // 猛毒の状態を直接設定
+        character.badStatus.poisonB.remainingTurns = 4;
+        character.badStatus.poisonB.recovery = false;
+        log(`${character.name}に猛毒が付与されました！`);
         }
 
         function startBattle() {
@@ -1029,6 +1051,7 @@
                 
                 if(turn == 1){
                     applyPoisonManually(player1);
+                    applyPoison2Manually(player2);
                 }
                 // BS判定フェーズ
                 // ダメージバッドステータスのダメージ処理
