@@ -442,7 +442,7 @@
                 }
 
                 let resistanceChance = Math.random() * 100;
-                if (resistanceChance >= (100 - this.resistance) && resistanceChance > this.fumble) {
+                if (resistanceChance >= (100 - this.resistance)) {
                     log(`${this.name}は状態異常に対する抵抗が発動しました！`);
                 }
 
