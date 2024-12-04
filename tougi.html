@@ -713,7 +713,7 @@
                     log(`\n${this.name}が攻撃！ 命中判定: ${hitChance} (命中ダイス: ${roll}, 命中: ${this.hit})`);
                 }
                 
-                if (evasionRoll <= target.fumble) {
+                if (!attackFumble && evasionRoll <= target.fumble) {
                     log(`${target.name}の回避判定:ファンブル!! (回避ダイス: ${evasionRoll}, 回避: ${target.evasion})`);
                 } else if (evasionRoll >= 100 - target.critical) {
                     log(`${target.name}の回避判定:クリティカル!! (回避ダイス: ${evasionRoll}, 回避: ${target.evasion})`);
