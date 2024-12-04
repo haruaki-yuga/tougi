@@ -485,9 +485,50 @@
                     }
                 }
 
-                let resistanceChance = Math.random() * 100;
-                if (resistanceChance >= (100 - this.resistance)) {
-                    log(`${this.name}は状態異常に対する抵抗が発動しました！`);
+                if (this.resistance >= 0) {
+                    let resistanceChance = Math.random() * 100;
+                    if (resistanceChance >= (100 - this.resistance)) {
+                        log(`${this.name}は状態異常に対する抵抗が発動しました！`);
+                    } else {
+                        // BS適用処理
+                    }
+                } else {
+                    // 特殊抵抗がマイナスでBSを受けた場合、特殊抵抗判定に移行します。
+                    // -抵抗値+100で抵抗判定を行い、失敗時BSの効果ターンが二倍となります。この判定は速度判定と同様にクリティカルとファンブルは起きません。-101を超えた場合、必ず失敗します。 例：抵抗-5の場合、-5+100で95の特殊判定に失敗すると（出目が4以下の場合）、BS効果ターンが二倍となります。
+                    // 特殊抵抗が-1～-50である間、受けるBS効果は一段階上昇します。
+                    // 特殊抵抗が-51～-100である場合、更にもう一段階上昇……という形でBSの効果が悪化していきます。
+                    // 最大で四段階目のBSの効果に悪化します。（三段階の系統、上位がないBSも存在します）
+                    // 例：-1～-25で【毒】を付与された場合→【猛毒】の効果に。
+                    // 例：-26～-50で【毒】を付与された場合→【致死毒】の効果に。
+                    // 例：-51～で【毒】を付与された場合→【廃滅】の効果に。
+                    // 特殊抵抗がマイナスである場合BSの耐性を所持していた場合でも、その耐性は無効化されBSの効果が発動します。。
+                    // HP増量系の付与効果をブレイク時、付与されていたHP分が消滅します。（自然な時間経過で付与効果が消えた場合はHPは減りません）
+
+                    // 表記が揺れているが、一旦25刻みで悪化する方向で処理している
+                    // 追ってpppで要検証
+
+                    let resistanceChance = Math.random() * 100;
+                    if (resistanceChance >= (100 - this.resistance + 100)) {
+                        // BS効果時間は等倍
+                    } else {
+                        // BS効果時間は二倍
+                    }
+
+                    switch (true) {
+                        case isInRange(this.defense, -25, -1): {
+                            // 最大一段階悪化
+                            break;
+                        }
+                        case isInRange(this.defense, -50, -26): {
+                            // 最大二段階悪化
+                            break;
+                        }
+                        default: {
+                            // 最大三段階悪化
+                            break;
+                        }
+                    }
+                    // BS適用処理
                 }
 
                 const elementFix = this.getElementFix(element, elementLevel);
