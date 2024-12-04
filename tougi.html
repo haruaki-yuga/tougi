@@ -449,12 +449,12 @@
             }
 
             // ダメージを受けるメソッド
-            takeDamage(damage, trueDamage, judgeHitDegree, defenceFumble, element, elementLevel) {
+            takeDamage(damage, trueDamage, judgeHitDegree, defenseFumble, element, elementLevel) {
 
                 this.takeDamagePreProcess(judgeHitDegree);
 
                 if (this.defense >= 0) {
-                    if (!defenceFumble) {
+                    if (!defenseFumble) {
                         let defenseChance = Math.random() * 100;
                         if (defenseChance >= (100 - this.defense) && defenseChance > this.fumble) {
                             damage *= 0.3;
@@ -724,8 +724,8 @@
                 }
                 let attackCritical = false
                 let attackFumble = false
-                let defenceCritical = false
-                let defenceFumble = false
+                let defenseCritical = false
+                let defenseFumble = false
 
                 // ① 命中判定
                 let roll = Math.floor(Math.random() * 100) + 1; // 100面ダイスを振る
@@ -742,10 +742,10 @@
                     attackFumble = true
                 }
                 if (evasionRoll >= 100 - target.critical) {
-                    defenceCritical = true
+                    defenseCritical = true
                 }
                 if (evasionRoll <= target.fumble) {
-                    defenceFumble = true
+                    defenseFumble = true
                 }
 
                 // ③ ログ出力: 命中ダイスと命中値、回避判定ダイスと回避値を表示
@@ -766,7 +766,7 @@
                 }
 
                 // ④ 命中判定と回避判定を比較
-                if (defenceCritical) {
+                if (defenseCritical) {
                     // クリティカルでの完全回避の場合
                     log(`${target.name}はクリティカルで完全回避しました！`);
                 } else if (attackFumble) {
@@ -835,7 +835,7 @@
                     }
 
                     // ダメージをターゲットに与える
-                    this.damageScoreForJudge += target.takeDamage(damage, trueDamage, judgeHitDegree, defenceFumble, this.element, this.elementLevel);
+                    this.damageScoreForJudge += target.takeDamage(damage, trueDamage, judgeHitDegree, defenseFumble, this.element, this.elementLevel);
 
                 } else if (hitChance <= finalEvasion) {
                     // 完全回避の場合
