@@ -456,7 +456,7 @@
                 if (this.defense >= 0) {
                     if (!defenseFumble) {
                         let defenseChance = Math.random() * 100;
-                        if (defenseChance >= (100 - this.defense) && defenseChance > this.fumble) {
+                        if ((defenseChance >= (100 - this.critical) || defenseChance >= (100 - this.defense)) && defenseChance > this.fumble) {
                             damage *= 0.3;
                             log(`${this.name}は防御技術でダメージを軽減しました！`);
                         }
@@ -486,7 +486,7 @@
                 }
 
                 let resistanceChance = Math.random() * 100;
-                if (resistanceChance >= (100 - this.resistance) && resistanceChance > this.fumble) {
+                if (resistanceChance >= (100 - this.resistance)) {
                     log(`${this.name}は状態異常に対する抵抗が発動しました！`);
                 }
 
@@ -499,8 +499,7 @@
 
                 if (this.hp <= 0) {
                     let dramaChance = Math.random() * 100;
-                    // 数字が上回った=以上と解釈。>の可能性もあり
-                    if (dramaChance >= (100 - this.drama) && dramaChance > this.fumble) {
+                    if ((dramaChance >= (100 - this.critical) || dramaChance >= (100 - this.drama)) && dramaChance > this.fumble) {
                         this.hp = 1;
                         if (this.dramaEnhanceCount < 10) {
                             this.critical += 1;
@@ -757,12 +756,14 @@
                     log(`\n${this.name}が攻撃！ 命中判定: ${hitChance} (命中ダイス: ${roll}, 命中: ${this.hit})`);
                 }
 
-                if (evasionRoll <= target.fumble) {
-                    log(`${target.name}の回避判定:ファンブル!! (回避ダイス: ${evasionRoll}, 回避: ${target.evasion})`);
-                } else if (evasionRoll >= 100 - target.critical) {
-                    log(`${target.name}の回避判定:クリティカル!! (回避ダイス: ${evasionRoll}, 回避: ${target.evasion})`);
-                } else {
-                    log(`${target.name}の回避判定: ${finalEvasion} (回避ダイス: ${evasionRoll}, 回避: ${target.evasion})`);
+                if (!attackFumble) {
+                    if (evasionRoll <= target.fumble) {
+                        log(`${target.name}の回避判定:ファンブル!! (回避ダイス: ${evasionRoll}, 回避: ${target.evasion})`);
+                    } else if (evasionRoll >= 100 - target.critical) {
+                        log(`${target.name}の回避判定:クリティカル!! (回避ダイス: ${evasionRoll}, 回避: ${target.evasion})`);
+                    } else {
+                        log(`${target.name}の回避判定: ${finalEvasion} (回避ダイス: ${evasionRoll}, 回避: ${target.evasion})`);
+                    }
                 }
 
                 // ④ 命中判定と回避判定を比較
