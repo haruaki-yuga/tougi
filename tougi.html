@@ -435,7 +435,7 @@
 
                 if (!defenceFumble) {
                     let defenseChance = Math.random() * 100;
-                    if (defenseChance >= (100 - this.defense) && defenseChance > this.fumble) {
+                    if ((defenseChance >= (100 - this.critical) || defenseChance >= (100 - this.defense)) && defenseChance > this.fumble) {
                         damage *= 0.3;
                         log(`${this.name}は防御技術でダメージを軽減しました！`);
                     }
@@ -455,8 +455,7 @@
 
                 if (this.hp <= 0) {
                     let dramaChance = Math.random() * 100;
-                    // 数字が上回った=以上と解釈。>の可能性もあり
-                    if (dramaChance >= (100 - this.drama) && dramaChance > this.fumble) {
+                    if ((dramaChance >= (100 - this.critical) || dramaChance >= (100 - this.drama)) && dramaChance > this.fumble) {
                         this.hp = 1;
                         if (this.dramaEnhanceCount < 10) {
                             this.critical += 1;
