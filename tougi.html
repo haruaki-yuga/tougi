@@ -543,11 +543,13 @@
                     let dramaChance = Math.random() * 100;
                     if ((dramaChance >= (100 - this.critical) || dramaChance >= (100 - this.drama)) && dramaChance > this.fumble) {
                         this.hp = 1;
-                        if (this.dramaEnhanceCount < 10) {
-                            this.critical += 1;
-                            this.speed += 20;
+                        if (this.dramaEnhanceCount < 5) {
+                            this.mainAttack += 40;
+                            this.subAttack += 40;
+                            this.critical += 2;
+                            this.speed += 40;
                             this.dramaEnhanceCount += 1;
-                            log(`${this.name}はドラマ補正でHP1で踏みとどまり、クリティカルと速度が増加しました！`);
+                            log(`${this.name}はドラマ補正でHP1で踏みとどまり、主攻撃力、副攻撃力、クリティカル、速度が増加しました！`);
                         } else {
                             log(`${this.name}はドラマ補正でHP1で踏みとどまりました！`);
                         }
@@ -652,17 +654,17 @@
                     }
                     case HIT_DEGREE.CLEAN_HIT: {
                         this.resistance += 0;
-                        this.drama -= 10;
+                        this.drama -= 25;
                         break;
                     }
                     case HIT_DEGREE.HARD_HIT: {
                         this.resistance -= 25;
-                        this.drama -= 20;
+                        this.drama -= 50;
                         break;
                     }
                     case HIT_DEGREE.SMASH_HIT: {
                         this.resistance -= 50;
-                        this.drama -= 30;
+                        this.drama -= 100;
                         break;
                     }
                     default: {
@@ -683,17 +685,17 @@
                     }
                     case HIT_DEGREE.CLEAN_HIT: {
                         this.resistance += 0;
-                        this.drama += 10;
+                        this.drama += 25;
                         break;
                     }
                     case HIT_DEGREE.HARD_HIT: {
                         this.resistance += 25;
-                        this.drama += 20;
+                        this.drama += 50;
                         break;
                     }
                     case HIT_DEGREE.SMASH_HIT: {
                         this.resistance += 50;
-                        this.drama += 30;
+                        this.drama += 100;
                         break;
                     }
                     default: {
